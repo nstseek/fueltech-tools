@@ -15,10 +15,14 @@ const exhaustJointEn = {
   resultUnit: 'in',
   tagCalculator: 'Calculator',
   tagExhaust: 'Exhaust',
-  chartXLabel: 'Primary Diameter (in)',
-  chartYLabel: 'Joint Diameter (in)',
-  chartDescription:
+  chartDiameterXLabel: 'Primary Diameter (in)',
+  chartDiameterYLabel: 'Joint Diameter (in)',
+  chartDiameterDescription:
     'X axis — Primary Diameter (in): primary exhaust pipe diameter.\nY axis — Joint Diameter (in): resulting joint pipe diameter for the selected setup type.',
+  chartLengthXLabel: 'Primary Length (in)',
+  chartLengthYLabel: 'Joint Length (in)',
+  chartLengthDescription:
+    'X axis — Primary Length (in): primary exhaust pipe length.\nY axis — Joint Length (in): resulting joint pipe length (always 0.5 × primary length).',
   formulaTitle: 'Formula',
   formulaJointLength: 'Joint Length = 0.5 × Primary Length',
   formulaDiameterStreet: 'Joint Diameter (Street) = 1.6 × Primary Diameter',

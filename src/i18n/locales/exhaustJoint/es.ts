@@ -15,10 +15,14 @@ const exhaustJointEs = {
   resultUnit: 'pulg',
   tagCalculator: 'Calculadora',
   tagExhaust: 'Escape',
-  chartXLabel: 'Diámetro Primario (pulg)',
-  chartYLabel: 'Diámetro de la Unión (pulg)',
-  chartDescription:
+  chartDiameterXLabel: 'Diámetro Primario (pulg)',
+  chartDiameterYLabel: 'Diámetro de la Unión (pulg)',
+  chartDiameterDescription:
     'Eje X — Diámetro Primario (pulg): diámetro del tubo primario de escape.\nEje Y — Diámetro de la Unión (pulg): diámetro resultante de la unión para el tipo de configuración seleccionado.',
+  chartLengthXLabel: 'Longitud Primaria (pulg)',
+  chartLengthYLabel: 'Longitud de la Unión (pulg)',
+  chartLengthDescription:
+    'Eje X — Longitud Primaria (pulg): longitud del tubo primario de escape.\nEje Y — Longitud de la Unión (pulg): longitud resultante de la unión (siempre 0.5 × longitud primaria).',
   formulaTitle: 'Fórmula',
   formulaJointLength: 'Longitud de la Unión = 0.5 × Longitud Primaria',
   formulaDiameterStreet: 'Diámetro de la Unión (Calle) = 1.6 × Diámetro Primario',

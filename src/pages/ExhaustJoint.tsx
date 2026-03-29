@@ -18,6 +18,7 @@ import LineChart from '../components/ui/LineChart'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 
 const DIAMETER_STEP = 0.1
+const LENGTH_STEP = 1
 
 export default function ExhaustJoint() {
   const { t } = useTranslation()
@@ -39,7 +40,7 @@ export default function ExhaustJoint() {
     setResult(res)
   }
 
-  const chartData = useMemo(() => {
+  const diameterChartData = useMemo(() => {
     if (result === null) return []
     const dVal = Number(primaryDiameter)
     const range = isMobile ? dVal * 0.5 : dVal
@@ -53,6 +54,21 @@ export default function ExhaustJoint() {
     }
     return points
   }, [result, primaryDiameter, primaryLength, type, isMobile])
+
+  const lengthChartData = useMemo(() => {
+    if (result === null) return []
+    const lVal = Number(primaryLength)
+    const range = isMobile ? lVal * 0.5 : lVal
+    const step = isMobile ? LENGTH_STEP * 5 : LENGTH_STEP
+    const minL = Math.max(1, lVal - range)
+    const maxL = lVal + range
+    const points = []
+    for (let l = minL; l <= maxL + step / 2; l = Math.round((l + step) * 100) / 100) {
+      const { jointLength } = calculateExhaustJoint(l, Number(primaryDiameter), type)
+      points.push({ x: l, y: jointLength })
+    }
+    return points
+  }, [result, primaryLength, primaryDiameter, type, isMobile])
 
   return (
     <>
@@ -133,17 +149,29 @@ export default function ExhaustJoint() {
         </Paper>
       </Box>
 
-      {chartData.length > 0 && (
-        <Paper sx={{ p: 3, mt: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, whiteSpace: 'pre-line' }}>
-            {t('exhaustJoint.chartDescription')}
-          </Typography>
-          <LineChart
-            data={chartData}
-            xLabel={t('exhaustJoint.chartXLabel')}
-            yLabel={t('exhaustJoint.chartYLabel')}
-          />
-        </Paper>
+      {result !== null && (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mt: 3 }}>
+          <Paper sx={{ p: 3, flex: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, whiteSpace: 'pre-line' }}>
+              {t('exhaustJoint.chartDiameterDescription')}
+            </Typography>
+            <LineChart
+              data={diameterChartData}
+              xLabel={t('exhaustJoint.chartDiameterXLabel')}
+              yLabel={t('exhaustJoint.chartDiameterYLabel')}
+            />
+          </Paper>
+          <Paper sx={{ p: 3, flex: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, whiteSpace: 'pre-line' }}>
+              {t('exhaustJoint.chartLengthDescription')}
+            </Typography>
+            <LineChart
+              data={lengthChartData}
+              xLabel={t('exhaustJoint.chartLengthXLabel')}
+              yLabel={t('exhaustJoint.chartLengthYLabel')}
+            />
+          </Paper>
+        </Box>
       )}
     </>
   )
