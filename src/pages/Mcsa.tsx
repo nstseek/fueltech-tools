@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -10,7 +12,6 @@ import { calculateMCSA } from './Mcsa/calculateMCSA'
 import LineChart from '../components/ui/LineChart'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 
-const MAX_RPM = 10000
 const RPM_STEP = 100
 
 export default function Mcsa() {
@@ -21,6 +22,8 @@ export default function Mcsa() {
   const [rpm, setRpm] = useLocalStorage('fueltech:mcsa.rpm', '')
   const [result, setResult] = useLocalStorage<number | null>('fueltech:mcsa.result', null)
 
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const isDisabled = !pistonDiameter || !stroke || !rpm
 
   function handleCalculate() {
@@ -30,12 +33,17 @@ export default function Mcsa() {
 
   const chartData = useMemo(() => {
     if (result === null) return []
+    const rpmVal = Number(rpm)
+    const range = isMobile ? 1000 : 3000
+    const step = isMobile ? 500 : RPM_STEP
+    const minRPM = Math.max(0, rpmVal - range)
+    const maxRPM = rpmVal + range
     const points = []
-    for (let r = 0; r <= MAX_RPM; r += RPM_STEP) {
+    for (let r = minRPM; r <= maxRPM; r += step) {
       points.push({ x: r, y: calculateMCSA(Number(pistonDiameter), Number(stroke), r) })
     }
     return points
-  }, [result, pistonDiameter, stroke])
+  }, [result, pistonDiameter, stroke, rpm, isMobile])
 
   return (
     <>
