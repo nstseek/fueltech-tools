@@ -1,0 +1,37 @@
+const compressionRatioEn = {
+  title: 'Compression Ratio Calculator',
+  subtitle:
+    'Calculate the static compression ratio of your engine from bore, stroke, combustion chamber volume, head gasket dimensions, piston dish/dome, and deck clearance.',
+  homeDescription:
+    'Calculate the static compression ratio of your engine. Enter bore, stroke, combustion chamber volume, gasket dimensions, piston dish/dome, and deck clearance for an accurate result.',
+  fieldBore: 'Bore (mm)',
+  fieldStroke: 'Stroke (mm)',
+  fieldChamberVolume: 'Combustion Chamber Volume (mm³)',
+  fieldPistonDishVolume: 'Piston Dish / Dome Volume (mm³)',
+  fieldPistonDishVolumeHelper: 'Positive for dish, negative for dome. Use 0 for flat top.',
+  fieldGasketBore: 'Head Gasket Bore (mm)',
+  fieldGasketThickness: 'Head Gasket Compressed Thickness (mm)',
+  fieldDeckClearance: 'Deck Clearance (mm)',
+  fieldDeckClearanceHelper: 'Distance from piston crown to deck at TDC. Use 0 if flush.',
+  calculate: 'Calculate',
+  resultLabel: 'Compression Ratio',
+  resultUnit: ':1',
+  tagCalculator: 'Calculator',
+  tagEngine: 'Engine',
+  chartXLabel: 'Bore (mm)',
+  chartYLabel: 'Compression Ratio',
+  chartDescription:
+    'X axis — Bore (mm): cylinder bore diameter.\nY axis — Compression Ratio: static compression ratio at the given bore, with all other inputs held constant.',
+  formulaTitle: 'Formula',
+  formulaCR: 'CR = (Vd + Vc) / Vc',
+  formulaVd: 'Vd = (π / 4) × Bore² × Stroke',
+  formulaVc: 'Vc = Chamber + Gasket + Dish + Deck',
+  formulaGasket: 'Gasket = (π / 4) × Gasket Bore² × Gasket Thickness',
+  formulaDeck: 'Deck = (π / 4) × Bore² × Deck Clearance',
+  formulaVarCR: 'CR — static compression ratio',
+  formulaVarVd: 'Vd — swept (displacement) volume (mm³)',
+  formulaVarVc: 'Vc — total clearance volume (mm³)',
+  formulaVarChamber: 'Chamber — combustion chamber volume (mm³)',
+  formulaVarDish: 'Dish — piston dish/dome volume (mm³)',
+}
+export default compressionRatioEn

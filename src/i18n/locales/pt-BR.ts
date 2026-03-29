@@ -9,6 +9,8 @@ import aiAssistant from './aiAssistant/pt-BR'
 import exhaustPipeArea from './exhaustPipeArea/pt-BR'
 import exhaustPipeLength from './exhaustPipeLength/pt-BR'
 import exhaustJoint from './exhaustJoint/pt-BR'
+import rlRatio from './rlRatio/pt-BR'
+import compressionRatio from './compressionRatio/pt-BR'
 
 const ptBR = {
   common: {
@@ -33,6 +35,8 @@ const ptBR = {
     exhaustPipeArea: 'Diâmetro do Escapamento',
     exhaustPipeLength: 'Comprimento do Escapamento',
     exhaustJoint: 'Junta de Escapamento',
+    rlRatio: 'Relação R/L',
+    compressionRatio: 'Taxa de Compressão',
     volumetricEfficiency: 'Correção EV',
     lambdaCorrection: 'Correção Lambda',
     ignitionAdvanceComparison: 'Comparação de Avanço',
@@ -52,6 +56,8 @@ const ptBR = {
   exhaustPipeArea,
   exhaustPipeLength,
   exhaustJoint,
+  rlRatio,
+  compressionRatio,
 }
 
 export default ptBR

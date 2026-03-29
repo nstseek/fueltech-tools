@@ -12,6 +12,8 @@ import AiAssistant from './pages/AiAssistant'
 import ExhaustPipeArea from './pages/ExhaustPipeArea'
 import ExhaustPipeLength from './pages/ExhaustPipeLength'
 import ExhaustJoint from './pages/ExhaustJoint'
+import RLRatio from './pages/RLRatio'
+import CompressionRatio from './pages/CompressionRatio'
 
 const router = createBrowserRouter([
   {
@@ -30,6 +32,8 @@ const router = createBrowserRouter([
       { path: 'exhaust-pipe-area', element: <ExhaustPipeArea /> },
       { path: 'exhaust-pipe-length', element: <ExhaustPipeLength /> },
       { path: 'exhaust-joint', element: <ExhaustJoint /> },
+      { path: 'rl-ratio', element: <RLRatio /> },
+      { path: 'compression-ratio', element: <CompressionRatio /> },
     ],
   },
 ])

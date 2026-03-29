@@ -1,0 +1,37 @@
+const compressionRatioEs = {
+  title: 'Calculadora de Relación de Compresión',
+  subtitle:
+    'Calcule la relación de compresión estática de su motor a partir del diámetro, carrera, volumen de la cámara de combustión, dimensiones de la junta de culata, plato/domo del pistón y holgura del deck.',
+  homeDescription:
+    'Calcule la relación de compresión estática de su motor. Ingrese el diámetro, carrera, volumen de la cámara, dimensiones de la junta, plato/domo del pistón y holgura del deck para un resultado preciso.',
+  fieldBore: 'Diámetro del Cilindro (mm)',
+  fieldStroke: 'Carrera (mm)',
+  fieldChamberVolume: 'Volumen de la Cámara de Combustión (mm³)',
+  fieldPistonDishVolume: 'Volumen del Plato / Domo del Pistón (mm³)',
+  fieldPistonDishVolumeHelper: 'Positivo para plato, negativo para domo. Use 0 para pistón plano.',
+  fieldGasketBore: 'Diámetro Interno de la Junta de Culata (mm)',
+  fieldGasketThickness: 'Espesor Comprimido de la Junta de Culata (mm)',
+  fieldDeckClearance: 'Holgura del Deck (mm)',
+  fieldDeckClearanceHelper: 'Distancia de la corona del pistón al deck en el PMS. Use 0 si está al ras.',
+  calculate: 'Calcular',
+  resultLabel: 'Relación de Compresión',
+  resultUnit: ':1',
+  tagCalculator: 'Calculadora',
+  tagEngine: 'Motor',
+  chartXLabel: 'Diámetro (mm)',
+  chartYLabel: 'Relación de Compresión',
+  chartDescription:
+    'Eje X — Diámetro (mm): diámetro del cilindro.\nEje Y — Relación de Compresión: relación de compresión estática para el diámetro dado, con los demás parámetros fijos.',
+  formulaTitle: 'Fórmula',
+  formulaCR: 'RC = (Vd + Vc) / Vc',
+  formulaVd: 'Vd = (π / 4) × Diámetro² × Carrera',
+  formulaVc: 'Vc = Cámara + Junta + Plato + Deck',
+  formulaGasket: 'Junta = (π / 4) × Diámetro Junta² × Espesor Junta',
+  formulaDeck: 'Deck = (π / 4) × Diámetro² × Holgura Deck',
+  formulaVarCR: 'RC — relación de compresión estática',
+  formulaVarVd: 'Vd — volumen desplazado (cilindrada) (mm³)',
+  formulaVarVc: 'Vc — volumen total de la cámara de holgura (mm³)',
+  formulaVarChamber: 'Cámara — volumen de la cámara de combustión (mm³)',
+  formulaVarDish: 'Plato — volumen del plato/domo del pistón (mm³)',
+}
+export default compressionRatioEs

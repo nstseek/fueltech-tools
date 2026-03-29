@@ -1,0 +1,37 @@
+const compressionRatioPtBR = {
+  title: 'Calculadora de Taxa de Compressão',
+  subtitle:
+    'Calcule a taxa de compressão estática do seu motor a partir do diâmetro, curso, volume da câmara de combustão, dimensões da junta do cabeçote, prato/cúpula do pistão e folga do deck.',
+  homeDescription:
+    'Calcule a taxa de compressão estática do seu motor. Insira o diâmetro, curso, volume da câmara de combustão, dimensões da junta, prato/cúpula do pistão e folga do deck para um resultado preciso.',
+  fieldBore: 'Diâmetro do Cilindro (mm)',
+  fieldStroke: 'Curso (mm)',
+  fieldChamberVolume: 'Volume da Câmara de Combustão (mm³)',
+  fieldPistonDishVolume: 'Volume do Prato / Cúpula do Pistão (mm³)',
+  fieldPistonDishVolumeHelper: 'Positivo para prato, negativo para cúpula. Use 0 para pistão plano.',
+  fieldGasketBore: 'Diâmetro Interno da Junta do Cabeçote (mm)',
+  fieldGasketThickness: 'Espessura Comprimida da Junta do Cabeçote (mm)',
+  fieldDeckClearance: 'Folga do Deck (mm)',
+  fieldDeckClearanceHelper: 'Distância entre o topo do pistão e o deck no PMI. Use 0 se nivelado.',
+  calculate: 'Calcular',
+  resultLabel: 'Taxa de Compressão',
+  resultUnit: ':1',
+  tagCalculator: 'Calculadora',
+  tagEngine: 'Motor',
+  chartXLabel: 'Diâmetro (mm)',
+  chartYLabel: 'Taxa de Compressão',
+  chartDescription:
+    'Eixo X — Diâmetro (mm): diâmetro do cilindro.\nEixo Y — Taxa de Compressão: taxa de compressão estática para o diâmetro fornecido, com os demais parâmetros fixos.',
+  formulaTitle: 'Fórmula',
+  formulaCR: 'TC = (Vd + Vc) / Vc',
+  formulaVd: 'Vd = (π / 4) × Diâmetro² × Curso',
+  formulaVc: 'Vc = Câmara + Junta + Prato + Deck',
+  formulaGasket: 'Junta = (π / 4) × Diâmetro da Junta² × Espessura da Junta',
+  formulaDeck: 'Deck = (π / 4) × Diâmetro² × Folga do Deck',
+  formulaVarCR: 'TC — taxa de compressão estática',
+  formulaVarVd: 'Vd — volume varrido (cilindrada) (mm³)',
+  formulaVarVc: 'Vc — volume total da câmara de folga (mm³)',
+  formulaVarChamber: 'Câmara — volume da câmara de combustão (mm³)',
+  formulaVarDish: 'Prato — volume do prato/cúpula do pistão (mm³)',
+}
+export default compressionRatioPtBR

@@ -101,6 +101,20 @@ export default function Home() {
       to: ROUTES.EXHAUST_JOINT,
       tags: [t('exhaustJoint.tagCalculator'), t('exhaustJoint.tagExhaust')],
     },
+    {
+      title: t('rlRatio.title'),
+      description: t('rlRatio.homeDescription'),
+      icon: <SpeedIcon />,
+      to: ROUTES.RL_RATIO,
+      tags: [t('rlRatio.tagCalculator'), t('rlRatio.tagEngine')],
+    },
+    {
+      title: t('compressionRatio.title'),
+      description: t('compressionRatio.homeDescription'),
+      icon: <SpeedIcon />,
+      to: ROUTES.COMPRESSION_RATIO,
+      tags: [t('compressionRatio.tagCalculator'), t('compressionRatio.tagEngine')],
+    },
   ]
 
   return (

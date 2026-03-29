@@ -22,6 +22,8 @@ export const ROUTES = {
   EXHAUST_PIPE_AREA: '/exhaust-pipe-area',
   EXHAUST_PIPE_LENGTH: '/exhaust-pipe-length',
   EXHAUST_JOINT: '/exhaust-joint',
+  RL_RATIO: '/rl-ratio',
+  COMPRESSION_RATIO: '/compression-ratio',
 } as const
 
 export interface RouteConfig {
@@ -90,5 +92,15 @@ export const routeConfig: RouteConfig[] = [
     path: ROUTES.EXHAUST_JOINT,
     labelKey: 'nav.exhaustJoint',
     icon: <AirIcon />,
+  },
+  {
+    path: ROUTES.RL_RATIO,
+    labelKey: 'nav.rlRatio',
+    icon: <SpeedIcon />,
+  },
+  {
+    path: ROUTES.COMPRESSION_RATIO,
+    labelKey: 'nav.compressionRatio',
+    icon: <SpeedIcon />,
   },
 ]
