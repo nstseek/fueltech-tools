@@ -7,29 +7,25 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { routeConfig } from '../../router/routes'
 
 interface SidebarProps {
   width: number
+  mobileOpen: boolean
+  onClose: () => void
 }
 
-export default function Sidebar({ width }: SidebarProps) {
+function SidebarContent({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width,
-          boxSizing: 'border-box',
-        },
-      }}
-    >
+    <>
       <Toolbar
         sx={{
           display: 'flex',
@@ -57,6 +53,7 @@ export default function Sidebar({ width }: SidebarProps) {
               component={NavLink}
               to={route.path}
               end={route.path === '/'}
+              onClick={isMobile ? onClose : undefined}
               sx={{
                 mx: 1,
                 borderRadius: 1,
@@ -73,6 +70,46 @@ export default function Sidebar({ width }: SidebarProps) {
           </ListItem>
         ))}
       </List>
+    </>
+  )
+}
+
+export default function Sidebar({ width, mobileOpen, onClose }: SidebarProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
+  if (isMobile) {
+    return (
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        <SidebarContent onClose={onClose} />
+      </Drawer>
+    )
+  }
+
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        width,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width,
+          boxSizing: 'border-box',
+        },
+      }}
+    >
+      <SidebarContent onClose={onClose} />
     </Drawer>
   )
 }
