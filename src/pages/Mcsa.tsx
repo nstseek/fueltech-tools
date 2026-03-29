@@ -55,42 +55,62 @@ export default function Mcsa() {
         {t('mcsa.subtitle')}
       </Typography>
 
-      <Paper sx={{ p: 3, maxWidth: 400 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label={t('mcsa.fieldPistonDiameter')}
-            type="number"
-            required
-            value={pistonDiameter}
-            onChange={(e) => setPistonDiameter(e.target.value)}
-          />
-          <TextField
-            label={t('mcsa.fieldStroke')}
-            type="number"
-            required
-            value={stroke}
-            onChange={(e) => setStroke(e.target.value)}
-          />
-          <TextField
-            label={t('mcsa.fieldRPM')}
-            type="number"
-            required
-            value={rpm}
-            onChange={(e) => setRpm(e.target.value)}
-          />
-          <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
-            {t('mcsa.calculate')}
-          </Button>
-          {result !== null && (
-            <Typography variant="body1">
-              {t('mcsa.resultLabel')}: {result} {t('mcsa.resultUnit')}
-            </Typography>
-          )}
-        </Box>
-      </Paper>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, alignItems: 'flex-start' }}>
+        <Paper sx={{ p: 3, width: { xs: '100%', md: 400 }, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label={t('mcsa.fieldPistonDiameter')}
+              type="number"
+              required
+              value={pistonDiameter}
+              onChange={(e) => setPistonDiameter(e.target.value)}
+            />
+            <TextField
+              label={t('mcsa.fieldStroke')}
+              type="number"
+              required
+              value={stroke}
+              onChange={(e) => setStroke(e.target.value)}
+            />
+            <TextField
+              label={t('mcsa.fieldRPM')}
+              type="number"
+              required
+              value={rpm}
+              onChange={(e) => setRpm(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
+              {t('mcsa.calculate')}
+            </Button>
+            {result !== null && (
+              <Typography variant="body1">
+                {t('mcsa.resultLabel')}: {result} {t('mcsa.resultUnit')}
+              </Typography>
+            )}
+          </Box>
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: 3, flex: 1 }}>
+          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+            {t('mcsa.formulaTitle')}
+          </Typography>
+          <Typography variant="body2" sx={{ fontFamily: 'monospace', mb: 1.5 }}>
+            {t('mcsa.formulaExpression')}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Typography variant="body2" color="text.secondary">{t('mcsa.formulaVarMCSA')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('mcsa.formulaVarD')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('mcsa.formulaVarS')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('mcsa.formulaVarRPM')}</Typography>
+          </Box>
+        </Paper>
+      </Box>
 
       {chartData.length > 0 && (
         <Paper sx={{ p: 3, mt: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, whiteSpace: 'pre-line' }}>
+            {t('mcsa.chartDescription')}
+          </Typography>
           <LineChart
             data={chartData}
             xLabel={t('mcsa.chartXLabel')}

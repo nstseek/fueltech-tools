@@ -14,5 +14,12 @@ const mcsaPtBR = {
   tagIntakePort: 'Duto de Admissão',
   chartXLabel: 'RPM',
   chartYLabel: 'MCSA (mm²)',
+  chartDescription: 'Eixo X — RPM: rotação desejada para torque máximo.\nEixo Y — MCSA (mm²): área mínima de seção transversal do duto de admissão nessa rotação.',
+  formulaTitle: 'Fórmula',
+  formulaExpression: 'MCSA = √(D² × S × RPM × 0,000000279)',
+  formulaVarMCSA: 'MCSA — área mínima de seção transversal do duto de admissão (mm²)',
+  formulaVarD: 'D — diâmetro do pistão (mm)',
+  formulaVarS: 'S — curso do pistão (mm)',
+  formulaVarRPM: 'RPM — RPM desejado para torque máximo',
 }
 export default mcsaPtBR

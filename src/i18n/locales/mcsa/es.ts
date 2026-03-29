@@ -14,5 +14,12 @@ const mcsaEs = {
   tagIntakePort: 'Puerto de Admisión',
   chartXLabel: 'RPM',
   chartYLabel: 'MCSA (mm²)',
+  chartDescription: 'Eje X — RPM: velocidad del motor deseada para torque máximo.\nEje Y — MCSA (mm²): área mínima de sección transversal del puerto de admisión a esa RPM.',
+  formulaTitle: 'Fórmula',
+  formulaExpression: 'MCSA = √(D² × S × RPM × 0,000000279)',
+  formulaVarMCSA: 'MCSA — área mínima de sección transversal del puerto de admisión (mm²)',
+  formulaVarD: 'D — diámetro del pistón (mm)',
+  formulaVarS: 'S — carrera del pistón (mm)',
+  formulaVarRPM: 'RPM — RPM deseado de torque máximo',
 }
 export default mcsaEs

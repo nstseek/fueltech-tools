@@ -15,5 +15,13 @@ const exhaustPipeAreaEn = {
   tagExhaust: 'Exhaust',
   chartXLabel: 'RPM',
   chartYLabel: 'Diameter (in)',
+  chartDescription: 'X axis — RPM: engine speed at peak torque.\nY axis — Diameter (in): ideal primary exhaust pipe diameter at that RPM.',
+  formulaTitle: 'Formula',
+  formulaArea: 'Area = (RPM × Vol) / 88200',
+  formulaDiameter: 'D = 2 × √(Area / π)',
+  formulaVarArea: 'Area — pipe cross-section area (in²)',
+  formulaVarD: 'D — pipe diameter (in)',
+  formulaVarVol: 'Vol — cylinder volume (in³)',
+  formulaVarRPM: 'RPM — RPM at peak torque',
 }
 export default exhaustPipeAreaEn

@@ -57,40 +57,63 @@ export default function ExhaustPipeArea() {
         {t('exhaustPipeArea.subtitle')}
       </Typography>
 
-      <Paper sx={{ p: 3, maxWidth: 400 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label={t('exhaustPipeArea.fieldRPM')}
-            type="number"
-            required
-            value={rpm}
-            onChange={(e) => setRpm(e.target.value)}
-          />
-          <TextField
-            label={t('exhaustPipeArea.fieldCylinderVolume')}
-            type="number"
-            required
-            value={cylinderVolume}
-            onChange={(e) => setCylinderVolume(e.target.value)}
-          />
-          <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
-            {t('exhaustPipeArea.calculate')}
-          </Button>
-          {result !== null && (
-            <>
-              <Typography variant="body1">
-                {t('exhaustPipeArea.resultArea')}: {result.area.toFixed(4)} {t('exhaustPipeArea.resultAreaUnit')}
-              </Typography>
-              <Typography variant="body1">
-                {t('exhaustPipeArea.resultDiameter')}: {result.diameter.toFixed(4)} {t('exhaustPipeArea.resultDiameterUnit')}
-              </Typography>
-            </>
-          )}
-        </Box>
-      </Paper>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, alignItems: 'flex-start' }}>
+        <Paper sx={{ p: 3, width: { xs: '100%', md: 400 }, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label={t('exhaustPipeArea.fieldRPM')}
+              type="number"
+              required
+              value={rpm}
+              onChange={(e) => setRpm(e.target.value)}
+            />
+            <TextField
+              label={t('exhaustPipeArea.fieldCylinderVolume')}
+              type="number"
+              required
+              value={cylinderVolume}
+              onChange={(e) => setCylinderVolume(e.target.value)}
+            />
+            <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
+              {t('exhaustPipeArea.calculate')}
+            </Button>
+            {result !== null && (
+              <>
+                <Typography variant="body1">
+                  {t('exhaustPipeArea.resultArea')}: {result.area.toFixed(4)} {t('exhaustPipeArea.resultAreaUnit')}
+                </Typography>
+                <Typography variant="body1">
+                  {t('exhaustPipeArea.resultDiameter')}: {result.diameter.toFixed(4)} {t('exhaustPipeArea.resultDiameterUnit')}
+                </Typography>
+              </>
+            )}
+          </Box>
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: 3, flex: 1 }}>
+          <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+            {t('exhaustPipeArea.formulaTitle')}
+          </Typography>
+          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+            {t('exhaustPipeArea.formulaArea')}
+          </Typography>
+          <Typography variant="body2" sx={{ fontFamily: 'monospace', mb: 1.5 }}>
+            {t('exhaustPipeArea.formulaDiameter')}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Typography variant="body2" color="text.secondary">{t('exhaustPipeArea.formulaVarArea')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('exhaustPipeArea.formulaVarD')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('exhaustPipeArea.formulaVarVol')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('exhaustPipeArea.formulaVarRPM')}</Typography>
+          </Box>
+        </Paper>
+      </Box>
 
       {chartData.length > 0 && (
         <Paper sx={{ p: 3, mt: 3 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, whiteSpace: 'pre-line' }}>
+            {t('exhaustPipeArea.chartDescription')}
+          </Typography>
           <LineChart
             data={chartData}
             xLabel={t('exhaustPipeArea.chartXLabel')}

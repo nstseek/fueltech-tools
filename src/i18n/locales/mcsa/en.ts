@@ -14,5 +14,12 @@ const mcsaEn = {
   tagIntakePort: 'Intake Port',
   chartXLabel: 'RPM',
   chartYLabel: 'MCSA (mm²)',
+  chartDescription: 'X axis — RPM: desired peak torque engine speed.\nY axis — MCSA (mm²): minimum intake port cross-section area at that RPM.',
+  formulaTitle: 'Formula',
+  formulaExpression: 'MCSA = √(D² × S × RPM × 0.000000279)',
+  formulaVarMCSA: 'MCSA — minimum intake port cross-section area (mm²)',
+  formulaVarD: 'D — piston bore diameter (mm)',
+  formulaVarS: 'S — piston stroke (mm)',
+  formulaVarRPM: 'RPM — desired peak torque RPM',
 }
 export default mcsaEn

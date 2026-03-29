@@ -15,5 +15,13 @@ const exhaustPipeAreaPtBR = {
   tagExhaust: 'Escapamento',
   chartXLabel: 'RPM',
   chartYLabel: 'Diâmetro (pol)',
+  chartDescription: 'Eixo X — RPM: rotação do motor no torque máximo.\nEixo Y — Diâmetro (pol): diâmetro ideal do tubo primário de escapamento nessa rotação.',
+  formulaTitle: 'Fórmula',
+  formulaArea: 'Área = (RPM × Vol) / 88200',
+  formulaDiameter: 'D = 2 × √(Área / π)',
+  formulaVarArea: 'Área — área da seção transversal do tubo (pol²)',
+  formulaVarD: 'D — diâmetro do tubo (pol)',
+  formulaVarVol: 'Vol — volume do cilindro (pol³)',
+  formulaVarRPM: 'RPM — RPM no torque máximo',
 }
 export default exhaustPipeAreaPtBR
