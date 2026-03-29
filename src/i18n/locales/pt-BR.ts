@@ -5,6 +5,7 @@ import mcsa from './mcsa/pt-BR'
 import volumetricEfficiency from './volumetricEfficiency/pt-BR'
 import lambdaCorrection from './lambdaCorrection/pt-BR'
 import ignitionAdvanceComparison from './ignitionAdvanceComparison/pt-BR'
+import aiAssistant from './aiAssistant/pt-BR'
 
 const ptBR = {
   common: {
@@ -29,6 +30,7 @@ const ptBR = {
     volumetricEfficiency: 'Correção EV',
     lambdaCorrection: 'Correção Lambda',
     ignitionAdvanceComparison: 'Comparação de Avanço',
+    aiAssistant: 'Assistente IA',
   },
   home: {
     subtitle: 'Selecione uma ferramenta abaixo para começar a configurar seu EFI.',
@@ -40,6 +42,7 @@ const ptBR = {
   volumetricEfficiency,
   lambdaCorrection,
   ignitionAdvanceComparison,
+  aiAssistant,
 }
 
 export default ptBR

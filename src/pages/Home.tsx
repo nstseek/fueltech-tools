@@ -7,6 +7,7 @@ import SpeedIcon from '@mui/icons-material/Speed'
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation'
 import ScienceIcon from '@mui/icons-material/Science'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { useTranslation } from 'react-i18next'
 import FeatureCard from '../components/ui/FeatureCard'
 import { ROUTES } from '../router/routes'
@@ -15,6 +16,13 @@ export default function Home() {
   const { t } = useTranslation()
 
   const features = [
+    {
+      title: t('aiAssistant.title'),
+      description: t('aiAssistant.homeDescription'),
+      icon: <AutoAwesomeIcon />,
+      to: ROUTES.AI_ASSISTANT,
+      tags: [t('aiAssistant.tagAI'), t('aiAssistant.tagEngineAnalysis'), t('aiAssistant.tagSuggestions')],
+    },
     {
       title: t('injectionMap.title'),
       description: t('injectionMap.homeDescription'),

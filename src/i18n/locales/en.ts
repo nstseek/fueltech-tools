@@ -5,6 +5,7 @@ import mcsa from './mcsa/en'
 import volumetricEfficiency from './volumetricEfficiency/en'
 import lambdaCorrection from './lambdaCorrection/en'
 import ignitionAdvanceComparison from './ignitionAdvanceComparison/en'
+import aiAssistant from './aiAssistant/en'
 
 const en = {
   common: {
@@ -29,6 +30,7 @@ const en = {
     volumetricEfficiency: 'VE Correction',
     lambdaCorrection: 'Lambda Correction',
     ignitionAdvanceComparison: 'Ignition Comparison',
+    aiAssistant: 'AI Assistant',
   },
   home: {
     subtitle: 'Select a tool below to start tuning your custom EFI setup.',
@@ -40,6 +42,7 @@ const en = {
   volumetricEfficiency,
   lambdaCorrection,
   ignitionAdvanceComparison,
+  aiAssistant,
 }
 
 export default en

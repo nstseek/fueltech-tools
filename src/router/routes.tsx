@@ -6,6 +6,7 @@ import SpeedIcon from '@mui/icons-material/Speed'
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation'
 import ScienceIcon from '@mui/icons-material/Science'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 
 export const ROUTES = {
   HOME: '/',
@@ -16,6 +17,7 @@ export const ROUTES = {
   VOLUMETRIC_EFFICIENCY: '/volumetric-efficiency',
   LAMBDA_CORRECTION: '/lambda-correction',
   IGNITION_ADVANCE_COMPARISON: '/ignition-advance-comparison',
+  AI_ASSISTANT: '/ai-assistant',
 } as const
 
 export interface RouteConfig {
@@ -29,6 +31,11 @@ export const routeConfig: RouteConfig[] = [
     path: ROUTES.HOME,
     labelKey: 'nav.home',
     icon: <HomeIcon />,
+  },
+  {
+    path: ROUTES.AI_ASSISTANT,
+    labelKey: 'nav.aiAssistant',
+    icon: <AutoAwesomeIcon />,
   },
   {
     path: ROUTES.INJECTION_MAP,

@@ -8,6 +8,7 @@ import Mcsa from './pages/Mcsa'
 import VolumetricEfficiencyCorrection from './pages/VolumetricEfficiencyCorrection'
 import LambdaCorrection from './pages/LambdaCorrection'
 import IgnitionAdvanceComparison from './pages/IgnitionAdvanceComparison'
+import AiAssistant from './pages/AiAssistant'
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: 'volumetric-efficiency', element: <VolumetricEfficiencyCorrection /> },
       { path: 'lambda-correction', element: <LambdaCorrection /> },
       { path: 'ignition-advance-comparison', element: <IgnitionAdvanceComparison /> },
+      { path: 'ai-assistant', element: <AiAssistant /> },
     ],
   },
 ])

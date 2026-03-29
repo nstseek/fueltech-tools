@@ -5,6 +5,7 @@ import mcsa from './mcsa/es'
 import volumetricEfficiency from './volumetricEfficiency/es'
 import lambdaCorrection from './lambdaCorrection/es'
 import ignitionAdvanceComparison from './ignitionAdvanceComparison/es'
+import aiAssistant from './aiAssistant/es'
 
 const es = {
   common: {
@@ -29,6 +30,7 @@ const es = {
     volumetricEfficiency: 'Corrección EV',
     lambdaCorrection: 'Corrección Lambda',
     ignitionAdvanceComparison: 'Comparación de Avance',
+    aiAssistant: 'Asistente IA',
   },
   home: {
     subtitle: 'Selecciona una herramienta a continuación para comenzar a configurar tu EFI personalizado.',
@@ -40,6 +42,7 @@ const es = {
   volumetricEfficiency,
   lambdaCorrection,
   ignitionAdvanceComparison,
+  aiAssistant,
 }
 
 export default es
