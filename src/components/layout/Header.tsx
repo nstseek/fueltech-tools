@@ -16,6 +16,7 @@ interface HeaderProps {
 const SUPPORTED_LANGS = [
   { code: 'en', label: 'EN' },
   { code: 'pt-BR', label: 'PT' },
+  { code: 'es', label: 'ES' },
 ]
 
 export default function Header({ sidebarWidth }: HeaderProps) {
