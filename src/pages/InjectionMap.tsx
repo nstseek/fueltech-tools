@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -23,6 +23,7 @@ import {
 } from './InjectionMap/calculateInjectionTimes'
 import type { InjectionMapParams } from './InjectionMap/calculateInjectionTimes'
 import LineChart from '../components/ui/LineChart'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 const DEFAULT_BSFC = {
   gasoline: 0.45,
@@ -50,9 +51,20 @@ interface ChartPoint {
   y: number
 }
 
-interface GridState {
-  columns: GridColDef[]
-  rows: Record<string, number | string>[]
+const STEP1_DEFAULT: Step1Fields = {
+  numCylinders: '',
+  maxRPM: '',
+  peakPower: '',
+  rpmAtPeakPower: '',
+  peakTorque: '',
+  rpmAtPeakTorque: '',
+}
+
+const STEP2_DEFAULT: Step2Fields = {
+  fuelType: 'gasoline',
+  maxMAP: '',
+  injectorSize: '',
+  bsfc: '',
 }
 
 function isStep1Valid(fields: Step1Fields): boolean {
@@ -73,27 +85,38 @@ function isStep2Valid(fields: Step2Fields): boolean {
 export default function InjectionMap() {
   const { t } = useTranslation()
 
-  const [activeStep, setActiveStep] = useState(0)
-  const [finished, setFinished] = useState(false)
+  const [activeStep, setActiveStep] = useLocalStorage('fueltech:injectionMap.activeStep', 0)
+  const [finished, setFinished] = useLocalStorage('fueltech:injectionMap.finished', false)
+  const [step1, setStep1] = useLocalStorage<Step1Fields>('fueltech:injectionMap.step1', STEP1_DEFAULT)
+  const [step2, setStep2] = useLocalStorage<Step2Fields>('fueltech:injectionMap.step2', STEP2_DEFAULT)
+  const [chartData, setChartData] = useLocalStorage<ChartPoint[]>('fueltech:injectionMap.chartData', [])
 
-  const [step1, setStep1] = useState<Step1Fields>({
-    numCylinders: '',
-    maxRPM: '',
-    peakPower: '',
-    rpmAtPeakPower: '',
-    peakTorque: '',
-    rpmAtPeakTorque: '',
-  })
-
-  const [step2, setStep2] = useState<Step2Fields>({
-    fuelType: 'gasoline',
-    maxMAP: '',
-    injectorSize: '',
-    bsfc: '',
-  })
-
-  const [gridState, setGridState] = useState<GridState | null>(null)
-  const [chartData, setChartData] = useState<ChartPoint[]>([])
+  // gridState is fully derived from chartData — no need to persist separately
+  const gridState = useMemo(() => {
+    if (chartData.length === 0) return null
+    const labelCol: GridColDef = {
+      field: 'label',
+      headerName: '',
+      width: 160,
+      sortable: false,
+      pinnable: true,
+    }
+    const valueCols: GridColDef[] = chartData.map((p) => ({
+      field: `map_${p.x.toFixed(1)}`,
+      headerName: p.x.toFixed(1),
+      width: 80,
+      sortable: false,
+      valueFormatter: (value: number) => value.toFixed(2),
+    }))
+    const rowData: Record<string, number | string> = {
+      id: 1,
+      label: t('injectionMap.dataGridRowLabel'),
+    }
+    chartData.forEach((p) => {
+      rowData[`map_${p.x.toFixed(1)}`] = p.y
+    })
+    return { columns: [labelCol, ...valueCols], rows: [rowData] }
+  }, [chartData, t])
 
   const steps = [t('injectionMap.step1Label'), t('injectionMap.step2Label')]
 
@@ -118,31 +141,6 @@ export default function InjectionMap() {
     const params = buildParams()
     const mapCols = generateMapColumns(params.maxMAP)
     const injTimes = calculateInjectionTimes(params)
-
-    const labelCol: GridColDef = {
-      field: 'label',
-      headerName: '',
-      width: 160,
-      sortable: false,
-      pinnable: true,
-    }
-    const valueCols: GridColDef[] = mapCols.map((v) => ({
-      field: `map_${v.toFixed(1)}`,
-      headerName: v.toFixed(1),
-      width: 80,
-      sortable: false,
-      valueFormatter: (value: number) => value.toFixed(2),
-    }))
-
-    const rowData: Record<string, number | string> = {
-      id: 1,
-      label: t('injectionMap.dataGridRowLabel'),
-    }
-    mapCols.forEach((v, i) => {
-      rowData[`map_${v.toFixed(1)}`] = injTimes[i]
-    })
-
-    setGridState({ columns: [labelCol, ...valueCols], rows: [rowData] })
     setChartData(mapCols.map((v, i) => ({ x: v, y: injTimes[i] })))
   }
 
@@ -167,10 +165,9 @@ export default function InjectionMap() {
   function handleReset() {
     setActiveStep(0)
     setFinished(false)
-    setGridState(null)
     setChartData([])
-    setStep1({ numCylinders: '', maxRPM: '', peakPower: '', rpmAtPeakPower: '', peakTorque: '', rpmAtPeakTorque: '' })
-    setStep2({ fuelType: 'gasoline', maxMAP: '', injectorSize: '', bsfc: '' })
+    setStep1(STEP1_DEFAULT)
+    setStep2(STEP2_DEFAULT)
   }
 
   return (

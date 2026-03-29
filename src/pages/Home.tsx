@@ -3,6 +3,10 @@ import Typography from '@mui/material/Typography'
 import TuneIcon from '@mui/icons-material/Tune'
 import FlashOnIcon from '@mui/icons-material/FlashOn'
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing'
+import SpeedIcon from '@mui/icons-material/Speed'
+import LocalGasStationIcon from '@mui/icons-material/LocalGasStation'
+import ScienceIcon from '@mui/icons-material/Science'
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import { useTranslation } from 'react-i18next'
 import FeatureCard from '../components/ui/FeatureCard'
 import { ROUTES } from '../router/routes'
@@ -34,6 +38,37 @@ export default function Home() {
         t('common.wizardForm'),
         t('engineVisualization.tagD3Graph'),
         t('engineVisualization.tagPerStroke'),
+      ],
+    },
+    {
+      title: t('mcsa.title'),
+      description: t('mcsa.homeDescription'),
+      icon: <SpeedIcon />,
+      to: ROUTES.MCSA,
+      tags: [t('mcsa.tagCalculator'), t('mcsa.tagIntakePort')],
+    },
+    {
+      title: t('volumetricEfficiency.title'),
+      description: t('volumetricEfficiency.homeDescription'),
+      icon: <LocalGasStationIcon />,
+      to: ROUTES.VOLUMETRIC_EFFICIENCY,
+      tags: [t('volumetricEfficiency.tagVE'), t('volumetricEfficiency.tagFuelCorrection')],
+    },
+    {
+      title: t('lambdaCorrection.title'),
+      description: t('lambdaCorrection.homeDescription'),
+      icon: <ScienceIcon />,
+      to: ROUTES.LAMBDA_CORRECTION,
+      tags: [t('lambdaCorrection.tagLambda'), t('lambdaCorrection.tagDynoData')],
+    },
+    {
+      title: t('ignitionAdvanceComparison.title'),
+      description: t('ignitionAdvanceComparison.homeDescription'),
+      icon: <CompareArrowsIcon />,
+      to: ROUTES.IGNITION_ADVANCE_COMPARISON,
+      tags: [
+        t('ignitionAdvanceComparison.tagComparison'),
+        t('ignitionAdvanceComparison.tagTiming'),
       ],
     },
   ]

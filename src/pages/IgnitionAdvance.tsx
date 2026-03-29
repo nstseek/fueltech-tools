@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -23,6 +23,7 @@ import {
 } from './IgnitionAdvance/calculateIgnitionAdvance'
 import type { IgnitionAdvanceParams } from './IgnitionAdvance/calculateIgnitionAdvance'
 import LineChart from '../components/ui/LineChart'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 type FuelType = 'gasoline' | 'ethanol'
 
@@ -43,36 +44,52 @@ interface ChartPoint {
   y: number
 }
 
-interface GridState {
-  columns: GridColDef[]
-  rows: Record<string, number | string>[]
+const DEFAULT_BORE_DIAMETER = 86
+
+const STEP1_DEFAULT: Step1Fields = {
+  valvesPerCylinder: '',
+  maxRPM: '',
+  idleRPM: '',
+  peakTorqueRPM: '',
 }
 
-const DEFAULT_BORE_DIAMETER = 86
+const STEP2_DEFAULT: Step2Fields = {
+  fuelType: '',
+  boreDiameter: '',
+}
 
 export default function IgnitionAdvance() {
   const { t } = useTranslation()
 
-  const [activeStep, setActiveStep] = useState(0)
-  const [finished, setFinished] = useState(false)
+  const [activeStep, setActiveStep] = useLocalStorage('fueltech:ignitionAdvance.activeStep', 0)
+  const [finished, setFinished] = useLocalStorage('fueltech:ignitionAdvance.finished', false)
+  const [step1, setStep1] = useLocalStorage<Step1Fields>('fueltech:ignitionAdvance.step1', STEP1_DEFAULT)
+  const [step2, setStep2] = useLocalStorage<Step2Fields>('fueltech:ignitionAdvance.step2', STEP2_DEFAULT)
+  const [chartData, setChartData] = useLocalStorage<ChartPoint[]>('fueltech:ignitionAdvance.chartData', [])
 
-  const [step1, setStep1] = useState<Step1Fields>({
-    valvesPerCylinder: '',
-    maxRPM: '',
-    idleRPM: '',
-    peakTorqueRPM: '',
-  })
-
-  const [step2, setStep2] = useState<Step2Fields>({
-    fuelType: '',
-    boreDiameter: '',
-  })
-
+  // Validation errors are pure UI state — not persisted
   const [step1Errors, setStep1Errors] = useState<Partial<Step1Fields>>({})
   const [step2FuelError, setStep2FuelError] = useState(false)
 
-  const [gridState, setGridState] = useState<GridState | null>(null)
-  const [chartData, setChartData] = useState<ChartPoint[]>([])
+  // gridState is fully derived from chartData — no need to persist separately
+  const gridState = useMemo(() => {
+    if (chartData.length === 0) return null
+    const columns: GridColDef[] = [
+      { field: 'label', headerName: '', width: 160, sortable: false, pinnable: false },
+      ...chartData.map((p) => ({
+        field: `rpm_${p.x}`,
+        headerName: String(p.x),
+        width: 80,
+        sortable: false,
+      })),
+    ]
+    const row: Record<string, string | number> = {
+      id: 1,
+      label: t('ignitionAdvance.gridRowLabel'),
+      ...Object.fromEntries(chartData.map((p) => [`rpm_${p.x}`, p.y])),
+    }
+    return { rows: [row], columns }
+  }, [chartData, t])
 
   const steps = [
     t('ignitionAdvance.stepEngineInfo'),
@@ -110,26 +127,6 @@ export default function IgnitionAdvance() {
     const params = buildParams()
     const rpmCols = generateRpmColumns(params.maxRPM)
     const values = calculateIgnitionAdvance(params)
-
-    const row: Record<string, string | number> = {
-      id: 1,
-      label: t('ignitionAdvance.gridRowLabel'),
-    }
-    rpmCols.forEach((rpm, i) => {
-      row[`rpm_${rpm}`] = values[i]
-    })
-
-    const columns: GridColDef[] = [
-      { field: 'label', headerName: '', width: 160, sortable: false, pinnable: false },
-      ...rpmCols.map((rpm) => ({
-        field: `rpm_${rpm}`,
-        headerName: String(rpm),
-        width: 80,
-        sortable: false,
-      })),
-    ]
-
-    setGridState({ rows: [row], columns })
     setChartData(rpmCols.map((rpm, i) => ({ x: rpm, y: values[i] })))
   }
 
@@ -155,10 +152,9 @@ export default function IgnitionAdvance() {
   function handleReset() {
     setActiveStep(0)
     setFinished(false)
-    setGridState(null)
     setChartData([])
-    setStep1({ valvesPerCylinder: '', maxRPM: '', idleRPM: '', peakTorqueRPM: '' })
-    setStep2({ fuelType: '', boreDiameter: '' })
+    setStep1(STEP1_DEFAULT)
+    setStep2(STEP2_DEFAULT)
     setStep1Errors({})
     setStep2FuelError(false)
   }

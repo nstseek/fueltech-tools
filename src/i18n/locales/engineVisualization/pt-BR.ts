@@ -26,6 +26,10 @@ const engineVisualizationPtBR = {
     'Ângulo do virabrequim onde a válvula de escape fecha completamente',
   fieldInjectionAngle: 'Ângulo de Injeção (°)',
   fieldInjectionAngleHelper: 'Ângulo do virabrequim onde a injeção começa',
+  fieldStroke: 'Curso do Pistão (mm)',
+  fieldStrokeHelper: 'Deslocamento total do pistão do PMF ao PMI',
+  fieldConrodLength: 'Comprimento da Biela (mm)',
+  fieldConrodLengthHelper: 'Distância entre os centros do pino do virabrequim e do pino do pistão',
 
   // Etapa 2 — Métodos
   fieldInjectionMethod: 'Método de Injeção',
@@ -56,6 +60,7 @@ const engineVisualizationPtBR = {
   legendSpark: 'Centelha',
   legendInjStart: 'Início Inj.',
   legendInjEnd: 'Fim Inj.',
+  legendPistonVelocity: 'Velocidade do Pistão',
 
   // Rótulos dos tempos
   strokeTDC: 'PMF',

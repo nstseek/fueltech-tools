@@ -9,6 +9,8 @@ export interface EngineParams {
   ignitionMethod: 'sequential'
   maxRPM: number
   maxMAP: number
+  stroke: number // piston stroke in mm
+  conrodLength: number // connecting rod length in mm
 }
 
 export interface ControllerValues {
@@ -16,11 +18,42 @@ export interface ControllerValues {
   map: number
 }
 
-// Returns piston position (0–100) for a given crank angle degree.
-// 0 = TDC (top dead center), 100 = BDC (bottom dead center).
-// For now return 0 — user will implement real sinusoidal logic later.
-export function getPistonPosition(_degree: number, _params: EngineParams): number {
-  return 0
+// Returns piston position (0–100) for a given crank angle degree using the
+// slider-crank formula. 0 = TDC (top dead center), 100 = BDC (bottom dead center).
+export function getPistonPosition(degree: number, params: EngineParams): number {
+  const R = params.stroke / 2
+  const L = params.conrodLength
+  const theta = degree * (Math.PI / 180)
+  const ratio = R / L
+  const position = R * (1 - Math.cos(theta)) + L * (1 - Math.sqrt(1 - ratio * ratio * Math.sin(theta) * Math.sin(theta)))
+  return (position / params.stroke) * 100
+}
+
+// Returns instantaneous piston velocity (normalized 0–100) for a given crank
+// angle degree. The derivative of the slider-crank position w.r.t. crank angle
+// is computed and then divided by the maximum absolute velocity across 0–720°.
+export function getPistonVelocity(degree: number, params: EngineParams): number {
+  const EPSILON = 1e-10
+  const R = params.stroke / 2
+  const L = params.conrodLength
+  const ratio = R / L
+
+  function rawVelocity(deg: number): number {
+    const theta = deg * (Math.PI / 180)
+    const sinTheta = Math.sin(theta)
+    const cosTheta = Math.cos(theta)
+    const inner = Math.max(1 - ratio * ratio * sinTheta * sinTheta, EPSILON)
+    return R * sinTheta + (R * R * sinTheta * cosTheta) / (L * Math.sqrt(inner))
+  }
+
+  let maxVelocity = 0
+  for (let d = 0; d <= 720; d++) {
+    const v = Math.abs(rawVelocity(d))
+    if (v > maxVelocity) maxVelocity = v
+  }
+
+  if (maxVelocity === 0) return 0
+  return (rawVelocity(degree) / maxVelocity) * 100
 }
 
 // Returns intake valve lift (0–100) for a given crank angle degree.

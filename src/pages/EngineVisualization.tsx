@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -17,8 +17,10 @@ import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturi
 import { useTranslation } from 'react-i18next'
 import * as d3 from 'd3'
 import type { EngineParams, ControllerValues } from './EngineVisualization/engineCalculations'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 import {
   getPistonPosition,
+  getPistonVelocity,
   getIntakeValveLift,
   getExhaustValveLift,
   getSparkTiming,
@@ -44,6 +46,8 @@ interface Step1Fields {
   exhaustValveOpens: string
   exhaustValveCloses: string
   injectionAngle: string
+  stroke: string
+  conrodLength: string
 }
 
 interface Step2Fields {
@@ -62,7 +66,9 @@ function isStep1Valid(f: Step1Fields): boolean {
     f.intakeValveCloses !== '' &&
     f.exhaustValveOpens !== '' &&
     f.exhaustValveCloses !== '' &&
-    f.injectionAngle !== ''
+    f.injectionAngle !== '' &&
+    f.stroke !== '' &&
+    f.conrodLength !== ''
   )
 }
 
@@ -84,6 +90,7 @@ const LINE_COLORS = {
   spark: '#ffeb3b',
   injStart: '#fe0000',
   injEnd: '#ff7043',
+  pistonVelocity: '#ff9800',
 } as const
 
 // ─── D3 draw function ─────────────────────────────────────────────────────────
@@ -141,6 +148,7 @@ function drawGraph(
   const pistonData = degrees.map((d) => ({ x: d, y: getPistonPosition(d, engineParams) }))
   const intakeData = degrees.map((d) => ({ x: d, y: getIntakeValveLift(d, engineParams) }))
   const exhaustData = degrees.map((d) => ({ x: d, y: getExhaustValveLift(d, engineParams) }))
+  const velocityData = degrees.map((d) => ({ x: d, y: getPistonVelocity(d, engineParams) }))
 
   const lineGen = d3
     .line<{ x: number; y: number }>()
@@ -159,6 +167,7 @@ function drawGraph(
   drawLine(pistonData, LINE_COLORS.piston)
   drawLine(intakeData, LINE_COLORS.intakeValve)
   drawLine(exhaustData, LINE_COLORS.exhaustValve)
+  drawLine(velocityData, LINE_COLORS.pistonVelocity)
 
   // Stroke dividers
   const dividers = getStrokeDividers()
@@ -222,6 +231,7 @@ function drawGraph(
     { color: LINE_COLORS.spark, label: t('engineVisualization.legendSpark') },
     { color: LINE_COLORS.injStart, label: t('engineVisualization.legendInjStart') },
     { color: LINE_COLORS.injEnd, label: t('engineVisualization.legendInjEnd') },
+    { color: LINE_COLORS.pistonVelocity, label: t('engineVisualization.legendPistonVelocity') },
   ]
 
   const legendX = width - 140
@@ -243,32 +253,34 @@ function drawGraph(
 export default function EngineVisualization() {
   const { t } = useTranslation()
 
-  const [activeStep, setActiveStep] = useState(0)
-  const [finished, setFinished] = useState(false)
+  const [activeStep, setActiveStep] = useLocalStorage('fueltech:engineViz.activeStep', 0)
+  const [finished, setFinished] = useLocalStorage('fueltech:engineViz.finished', false)
 
-  const [step1, setStep1] = useState<Step1Fields>({
+  const [step1, setStep1] = useLocalStorage<Step1Fields>('fueltech:engineViz.step1', {
     numCylinders: '',
     intakeValveOpens: '',
     intakeValveCloses: '',
     exhaustValveOpens: '',
     exhaustValveCloses: '',
     injectionAngle: '',
+    stroke: '',
+    conrodLength: '',
   })
 
-  const [step2, setStep2] = useState<Step2Fields>({
+  const [step2, setStep2] = useLocalStorage<Step2Fields>('fueltech:engineViz.step2', {
     injectionMethod: 'sequential',
     ignitionMethod: 'sequential',
     maxRPM: '',
     maxMAP: '',
   })
 
-  const [injectionData, setInjectionData] = useState<number[][] | null>(null)
-  const [ignitionData, setIgnitionData] = useState<number[][] | null>(null)
-  const [injectionFileName, setInjectionFileName] = useState<string | null>(null)
-  const [ignitionFileName, setIgnitionFileName] = useState<string | null>(null)
+  const [injectionData, setInjectionData] = useLocalStorage<number[][] | null>('fueltech:engineViz.injectionData', null)
+  const [ignitionData, setIgnitionData] = useLocalStorage<number[][] | null>('fueltech:engineViz.ignitionData', null)
+  const [injectionFileName, setInjectionFileName] = useLocalStorage<string | null>('fueltech:engineViz.injectionFileName', null)
+  const [ignitionFileName, setIgnitionFileName] = useLocalStorage<string | null>('fueltech:engineViz.ignitionFileName', null)
 
-  const [engineParams, setEngineParams] = useState<EngineParams | null>(null)
-  const [controller, setController] = useState<ControllerValues>({ rpm: 0, map: 0 })
+  const [engineParams, setEngineParams] = useLocalStorage<EngineParams | null>('fueltech:engineViz.engineParams', null)
+  const [controller, setController] = useLocalStorage<ControllerValues>('fueltech:engineViz.controller', { rpm: 0, map: 0 })
 
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -319,6 +331,8 @@ export default function EngineVisualization() {
       ignitionMethod: step2.ignitionMethod,
       maxRPM: Number(step2.maxRPM),
       maxMAP: Number(step2.maxMAP),
+      stroke: Number(step1.stroke),
+      conrodLength: Number(step1.conrodLength),
     }
     const initRPM = Math.round((params.maxRPM / 2) / 200) * 200
     const initMAP = params.maxMAP / 2
@@ -342,6 +356,8 @@ export default function EngineVisualization() {
       exhaustValveOpens: '',
       exhaustValveCloses: '',
       injectionAngle: '',
+      stroke: '',
+      conrodLength: '',
     })
     setStep2({
       injectionMethod: 'sequential',
@@ -443,6 +459,24 @@ export default function EngineVisualization() {
                 onChange={(e) => setStep1({ ...step1, injectionAngle: e.target.value })}
                 slotProps={{ htmlInput: { min: 0, max: 720 } }}
                 helperText={t('engineVisualization.fieldInjectionAngleHelper')}
+              />
+              <TextField
+                label={t('engineVisualization.fieldStroke')}
+                type="number"
+                required
+                value={step1.stroke}
+                onChange={(e) => setStep1({ ...step1, stroke: e.target.value })}
+                slotProps={{ htmlInput: { min: 0 } }}
+                helperText={t('engineVisualization.fieldStrokeHelper')}
+              />
+              <TextField
+                label={t('engineVisualization.fieldConrodLength')}
+                type="number"
+                required
+                value={step1.conrodLength}
+                onChange={(e) => setStep1({ ...step1, conrodLength: e.target.value })}
+                slotProps={{ htmlInput: { min: 0 } }}
+                helperText={t('engineVisualization.fieldConrodLengthHelper')}
               />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button

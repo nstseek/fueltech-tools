@@ -1,6 +1,10 @@
 import injectionMap from './injectionMap/pt-BR'
 import ignitionAdvance from './ignitionAdvance/pt-BR'
 import engineVisualization from './engineVisualization/pt-BR'
+import mcsa from './mcsa/pt-BR'
+import volumetricEfficiency from './volumetricEfficiency/pt-BR'
+import lambdaCorrection from './lambdaCorrection/pt-BR'
+import ignitionAdvanceComparison from './ignitionAdvanceComparison/pt-BR'
 
 const ptBR = {
   common: {
@@ -21,6 +25,10 @@ const ptBR = {
     injectionMap: 'Mapa de Injeção',
     ignitionAdvance: 'Avanço de Ignição',
     engineVisualization: 'Visualização do Motor',
+    mcsa: 'Calculadora MCSA',
+    volumetricEfficiency: 'Correção EV',
+    lambdaCorrection: 'Correção Lambda',
+    ignitionAdvanceComparison: 'Comparação de Avanço',
   },
   home: {
     subtitle: 'Selecione uma ferramenta abaixo para começar a configurar seu EFI.',
@@ -28,6 +36,10 @@ const ptBR = {
   injectionMap,
   ignitionAdvance,
   engineVisualization,
+  mcsa,
+  volumetricEfficiency,
+  lambdaCorrection,
+  ignitionAdvanceComparison,
 }
 
 export default ptBR

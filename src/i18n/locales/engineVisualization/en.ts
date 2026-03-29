@@ -24,6 +24,10 @@ const engineVisualizationEn = {
   fieldExhaustValveClosesHelper: 'Crankshaft angle where the exhaust valve fully closes',
   fieldInjectionAngle: 'Injection Angle (°)',
   fieldInjectionAngleHelper: 'Crankshaft angle where injection starts',
+  fieldStroke: 'Piston Stroke (mm)',
+  fieldStrokeHelper: 'Total piston travel from TDC to BDC',
+  fieldConrodLength: 'Connecting Rod Length (mm)',
+  fieldConrodLengthHelper: 'Distance between crank pin and piston pin centers',
 
   // Step 2 — Methods
   fieldInjectionMethod: 'Injection Method',
@@ -54,6 +58,7 @@ const engineVisualizationEn = {
   legendSpark: 'Spark',
   legendInjStart: 'Inj. Start',
   legendInjEnd: 'Inj. End',
+  legendPistonVelocity: 'Piston Velocity',
 
   // Stroke labels
   strokeTDC: 'TDC',
