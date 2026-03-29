@@ -20,6 +20,7 @@ export const ROUTES = {
   IGNITION_ADVANCE_COMPARISON: '/ignition-advance-comparison',
   AI_ASSISTANT: '/ai-assistant',
   EXHAUST_PIPE_AREA: '/exhaust-pipe-area',
+  EXHAUST_PIPE_LENGTH: '/exhaust-pipe-length',
 } as const
 
 export interface RouteConfig {
@@ -77,6 +78,11 @@ export const routeConfig: RouteConfig[] = [
   {
     path: ROUTES.EXHAUST_PIPE_AREA,
     labelKey: 'nav.exhaustPipeArea',
+    icon: <AirIcon />,
+  },
+  {
+    path: ROUTES.EXHAUST_PIPE_LENGTH,
+    labelKey: 'nav.exhaustPipeLength',
     icon: <AirIcon />,
   },
 ]

@@ -10,6 +10,7 @@ import LambdaCorrection from './pages/LambdaCorrection'
 import IgnitionAdvanceComparison from './pages/IgnitionAdvanceComparison'
 import AiAssistant from './pages/AiAssistant'
 import ExhaustPipeArea from './pages/ExhaustPipeArea'
+import ExhaustPipeLength from './pages/ExhaustPipeLength'
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
       { path: 'ignition-advance-comparison', element: <IgnitionAdvanceComparison /> },
       { path: 'ai-assistant', element: <AiAssistant /> },
       { path: 'exhaust-pipe-area', element: <ExhaustPipeArea /> },
+      { path: 'exhaust-pipe-length', element: <ExhaustPipeLength /> },
     ],
   },
 ])

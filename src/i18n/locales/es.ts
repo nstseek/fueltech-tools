@@ -7,6 +7,7 @@ import lambdaCorrection from './lambdaCorrection/es'
 import ignitionAdvanceComparison from './ignitionAdvanceComparison/es'
 import aiAssistant from './aiAssistant/es'
 import exhaustPipeArea from './exhaustPipeArea/es'
+import exhaustPipeLength from './exhaustPipeLength/es'
 
 const es = {
   common: {
@@ -29,6 +30,7 @@ const es = {
     engineVisualization: 'Visualización del Motor',
     mcsa: 'Calculadora MCSA',
     exhaustPipeArea: 'Diámetro del Escape',
+    exhaustPipeLength: 'Longitud del Escape',
     volumetricEfficiency: 'Corrección EV',
     lambdaCorrection: 'Corrección Lambda',
     ignitionAdvanceComparison: 'Comparación de Avance',
@@ -46,6 +48,7 @@ const es = {
   ignitionAdvanceComparison,
   aiAssistant,
   exhaustPipeArea,
+  exhaustPipeLength,
 }
 
 export default es

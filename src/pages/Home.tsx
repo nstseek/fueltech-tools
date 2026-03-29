@@ -87,6 +87,13 @@ export default function Home() {
       to: ROUTES.EXHAUST_PIPE_AREA,
       tags: [t('exhaustPipeArea.tagCalculator'), t('exhaustPipeArea.tagExhaust')],
     },
+    {
+      title: t('exhaustPipeLength.title'),
+      description: t('exhaustPipeLength.homeDescription'),
+      icon: <AirIcon />,
+      to: ROUTES.EXHAUST_PIPE_LENGTH,
+      tags: [t('exhaustPipeLength.tagCalculator'), t('exhaustPipeLength.tagExhaust')],
+    },
   ]
 
   return (
