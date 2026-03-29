@@ -9,6 +9,7 @@ import VolumetricEfficiencyCorrection from './pages/VolumetricEfficiencyCorrecti
 import LambdaCorrection from './pages/LambdaCorrection'
 import IgnitionAdvanceComparison from './pages/IgnitionAdvanceComparison'
 import AiAssistant from './pages/AiAssistant'
+import ExhaustPipeArea from './pages/ExhaustPipeArea'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: 'lambda-correction', element: <LambdaCorrection /> },
       { path: 'ignition-advance-comparison', element: <IgnitionAdvanceComparison /> },
       { path: 'ai-assistant', element: <AiAssistant /> },
+      { path: 'exhaust-pipe-area', element: <ExhaustPipeArea /> },
     ],
   },
 ])

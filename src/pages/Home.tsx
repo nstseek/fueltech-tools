@@ -8,6 +8,7 @@ import LocalGasStationIcon from '@mui/icons-material/LocalGasStation'
 import ScienceIcon from '@mui/icons-material/Science'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import AirIcon from '@mui/icons-material/Air'
 import { useTranslation } from 'react-i18next'
 import FeatureCard from '../components/ui/FeatureCard'
 import { ROUTES } from '../router/routes'
@@ -78,6 +79,13 @@ export default function Home() {
         t('ignitionAdvanceComparison.tagComparison'),
         t('ignitionAdvanceComparison.tagTiming'),
       ],
+    },
+    {
+      title: t('exhaustPipeArea.title'),
+      description: t('exhaustPipeArea.homeDescription'),
+      icon: <AirIcon />,
+      to: ROUTES.EXHAUST_PIPE_AREA,
+      tags: [t('exhaustPipeArea.tagCalculator'), t('exhaustPipeArea.tagExhaust')],
     },
   ]
 

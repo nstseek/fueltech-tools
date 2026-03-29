@@ -7,6 +7,7 @@ import LocalGasStationIcon from '@mui/icons-material/LocalGasStation'
 import ScienceIcon from '@mui/icons-material/Science'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import AirIcon from '@mui/icons-material/Air'
 
 export const ROUTES = {
   HOME: '/',
@@ -18,6 +19,7 @@ export const ROUTES = {
   LAMBDA_CORRECTION: '/lambda-correction',
   IGNITION_ADVANCE_COMPARISON: '/ignition-advance-comparison',
   AI_ASSISTANT: '/ai-assistant',
+  EXHAUST_PIPE_AREA: '/exhaust-pipe-area',
 } as const
 
 export interface RouteConfig {
@@ -71,5 +73,10 @@ export const routeConfig: RouteConfig[] = [
     path: ROUTES.IGNITION_ADVANCE_COMPARISON,
     labelKey: 'nav.ignitionAdvanceComparison',
     icon: <CompareArrowsIcon />,
+  },
+  {
+    path: ROUTES.EXHAUST_PIPE_AREA,
+    labelKey: 'nav.exhaustPipeArea',
+    icon: <AirIcon />,
   },
 ]

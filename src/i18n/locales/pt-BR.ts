@@ -6,6 +6,7 @@ import volumetricEfficiency from './volumetricEfficiency/pt-BR'
 import lambdaCorrection from './lambdaCorrection/pt-BR'
 import ignitionAdvanceComparison from './ignitionAdvanceComparison/pt-BR'
 import aiAssistant from './aiAssistant/pt-BR'
+import exhaustPipeArea from './exhaustPipeArea/pt-BR'
 
 const ptBR = {
   common: {
@@ -27,6 +28,7 @@ const ptBR = {
     ignitionAdvance: 'Avanço de Ignição',
     engineVisualization: 'Visualização do Motor',
     mcsa: 'Calculadora MCSA',
+    exhaustPipeArea: 'Diâmetro do Escapamento',
     volumetricEfficiency: 'Correção EV',
     lambdaCorrection: 'Correção Lambda',
     ignitionAdvanceComparison: 'Comparação de Avanço',
@@ -43,6 +45,7 @@ const ptBR = {
   lambdaCorrection,
   ignitionAdvanceComparison,
   aiAssistant,
+  exhaustPipeArea,
 }
 
 export default ptBR

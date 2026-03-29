@@ -6,6 +6,7 @@ import volumetricEfficiency from './volumetricEfficiency/en'
 import lambdaCorrection from './lambdaCorrection/en'
 import ignitionAdvanceComparison from './ignitionAdvanceComparison/en'
 import aiAssistant from './aiAssistant/en'
+import exhaustPipeArea from './exhaustPipeArea/en'
 
 const en = {
   common: {
@@ -27,6 +28,7 @@ const en = {
     ignitionAdvance: 'Ignition Advance',
     engineVisualization: 'Engine Visualization',
     mcsa: 'MCSA Calculator',
+    exhaustPipeArea: 'Exhaust Pipe Diameter',
     volumetricEfficiency: 'VE Correction',
     lambdaCorrection: 'Lambda Correction',
     ignitionAdvanceComparison: 'Ignition Comparison',
@@ -43,6 +45,7 @@ const en = {
   lambdaCorrection,
   ignitionAdvanceComparison,
   aiAssistant,
+  exhaustPipeArea,
 }
 
 export default en
