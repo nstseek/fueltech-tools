@@ -21,6 +21,7 @@ export const ROUTES = {
   AI_ASSISTANT: '/ai-assistant',
   EXHAUST_PIPE_AREA: '/exhaust-pipe-area',
   EXHAUST_PIPE_LENGTH: '/exhaust-pipe-length',
+  EXHAUST_JOINT: '/exhaust-joint',
 } as const
 
 export interface RouteConfig {
@@ -83,6 +84,11 @@ export const routeConfig: RouteConfig[] = [
   {
     path: ROUTES.EXHAUST_PIPE_LENGTH,
     labelKey: 'nav.exhaustPipeLength',
+    icon: <AirIcon />,
+  },
+  {
+    path: ROUTES.EXHAUST_JOINT,
+    labelKey: 'nav.exhaustJoint',
     icon: <AirIcon />,
   },
 ]

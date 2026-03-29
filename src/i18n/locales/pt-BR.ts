@@ -8,6 +8,7 @@ import ignitionAdvanceComparison from './ignitionAdvanceComparison/pt-BR'
 import aiAssistant from './aiAssistant/pt-BR'
 import exhaustPipeArea from './exhaustPipeArea/pt-BR'
 import exhaustPipeLength from './exhaustPipeLength/pt-BR'
+import exhaustJoint from './exhaustJoint/pt-BR'
 
 const ptBR = {
   common: {
@@ -31,6 +32,7 @@ const ptBR = {
     mcsa: 'Calculadora MCSA',
     exhaustPipeArea: 'Diâmetro do Escapamento',
     exhaustPipeLength: 'Comprimento do Escapamento',
+    exhaustJoint: 'Junta de Escapamento',
     volumetricEfficiency: 'Correção EV',
     lambdaCorrection: 'Correção Lambda',
     ignitionAdvanceComparison: 'Comparação de Avanço',
@@ -49,6 +51,7 @@ const ptBR = {
   aiAssistant,
   exhaustPipeArea,
   exhaustPipeLength,
+  exhaustJoint,
 }
 
 export default ptBR

@@ -11,7 +11,7 @@
  * @returns Primary exhaust pipe length in inches
  */
 export function calculateExhaustPipeLength(rpm: number, evo: number): number {
-  const exhaustWindowDegrees = 360 - 180 + evo;
+  const exhaustWindowDegrees = 180 + evo;
   const exhaustPulseDistance = 850 * exhaustWindowDegrees;
   const correctionOffset = 3;
   return exhaustPulseDistance / rpm - correctionOffset;
