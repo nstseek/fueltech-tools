@@ -11,6 +11,8 @@ import exhaustPipeLength from './exhaustPipeLength/en'
 import exhaustJoint from './exhaustJoint/en'
 import rlRatio from './rlRatio/en'
 import compressionRatio from './compressionRatio/en'
+import engineWizard from './engineWizard/en'
+import engineManager from './engineManager/en'
 
 const en = {
   common: {
@@ -25,6 +27,9 @@ const en = {
     reset: 'Reset',
     refresh: 'Refresh',
     optional: 'Optional',
+    calculate: 'Calculate',
+    setupEngine: 'Set Up Engine',
+    noEngineMessage: 'Please set up an engine to use this tool.',
   },
   nav: {
     home: 'Home',
@@ -58,6 +63,8 @@ const en = {
   exhaustJoint,
   rlRatio,
   compressionRatio,
+  engineWizard,
+  engineManager,
 }
 
 export default en

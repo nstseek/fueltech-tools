@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Box from '@mui/material/Box'
@@ -10,40 +10,86 @@ import SpeedIcon from '@mui/icons-material/Speed'
 import { useTranslation } from 'react-i18next'
 import { calculateMCSA } from './Mcsa/calculateMCSA'
 import LineChart from '../components/ui/LineChart'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useEngineContext } from '../contexts/EngineContext'
+import EngineWizardDialog from '../components/EngineWizard'
+import { useWizardGuard } from '../hooks/useWizardGuard'
+import { hasRequiredFields } from '../schemas/engineProfile'
+import type { EngineProfileField } from '../types/engineProfile'
 
 const RPM_STEP = 100
 
+const REQUIRED_FIELDS: EngineProfileField[] = ['bore', 'stroke']
+
 export default function Mcsa() {
   const { t } = useTranslation()
-
-  const [pistonDiameter, setPistonDiameter] = useLocalStorage('fueltech:mcsa.pistonDiameter', '')
-  const [stroke, setStroke] = useLocalStorage('fueltech:mcsa.stroke', '')
-  const [rpm, setRpm] = useLocalStorage('fueltech:mcsa.rpm', '')
-  const [result, setResult] = useLocalStorage<number | null>('fueltech:mcsa.result', null)
+  const { activeEngine, updateActiveEngine } = useEngineContext()
+  const [wizardOpen, setWizardOpen] = useState(false)
+  const handleWizardClose = useWizardGuard(setWizardOpen, activeEngine, REQUIRED_FIELDS)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const isDisabled = !pistonDiameter || !stroke || !rpm
 
-  function handleCalculate() {
-    const mcsa = calculateMCSA(Number(pistonDiameter), Number(stroke), Number(rpm))
-    setResult(mcsa)
-  }
+  useEffect(() => {
+    if (!activeEngine) {
+      setWizardOpen(true)
+      return
+    }
+    if (!hasRequiredFields(activeEngine, REQUIRED_FIELDS)) setWizardOpen(true)
+    // Set default rpm from maxRPM when engine loads and no rpm is stored yet
+    if (activeEngine.maxRPM && activeEngine.toolParams?.mcsa?.rpm === undefined) {
+      updateActiveEngine({ toolParams: { ...activeEngine.toolParams, mcsa: { rpm: activeEngine.maxRPM } } })
+    }
+  }, [activeEngine?.id])
+
+  const bore = activeEngine?.bore?.toString() ?? ''
+  const stroke = activeEngine?.stroke?.toString() ?? ''
+  const rpm = activeEngine?.toolParams?.mcsa?.rpm
+  const rpmStr = rpm?.toString() ?? ''
+  const result = activeEngine?.results?.mcsa?.result ?? null
+
+  useEffect(() => {
+    if (!bore || !stroke || rpm === undefined) return
+    const mcsa = calculateMCSA(Number(bore), Number(stroke), Number(rpm))
+    updateActiveEngine({
+      results: { ...activeEngine?.results, mcsa: { result: mcsa } },
+    })
+  }, [bore, stroke, rpm, activeEngine?.id])
 
   const chartData = useMemo(() => {
     if (result === null) return []
-    const rpmVal = Number(rpm)
+    const rpmVal = Number(rpmStr)
     const range = isMobile ? 1000 : 3000
     const step = isMobile ? 500 : RPM_STEP
     const minRPM = Math.max(0, rpmVal - range)
     const maxRPM = rpmVal + range
     const points = []
     for (let r = minRPM; r <= maxRPM; r += step) {
-      points.push({ x: r, y: calculateMCSA(Number(pistonDiameter), Number(stroke), r) })
+      points.push({ x: r, y: calculateMCSA(Number(bore), Number(stroke), r) })
     }
     return points
-  }, [result, pistonDiameter, stroke, rpm, isMobile])
+  }, [result, bore, stroke, rpmStr, isMobile])
+
+  if (!activeEngine) {
+    return (
+      <>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <SpeedIcon color="primary" />
+          <Typography variant="h4">{t('mcsa.title')}</Typography>
+        </Box>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          {t('common.noEngineMessage')}
+        </Typography>
+        <Button variant="contained" onClick={() => setWizardOpen(true)}>
+          {t('common.setupEngine')}
+        </Button>
+        <EngineWizardDialog
+          open={wizardOpen}
+          onClose={handleWizardClose}
+          requiredFields={REQUIRED_FIELDS}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -59,29 +105,19 @@ export default function Mcsa() {
         <Paper sx={{ p: 3, width: { xs: '100%', md: 400 }, flexShrink: 0 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label={t('mcsa.fieldPistonDiameter')}
-              type="number"
-              required
-              value={pistonDiameter}
-              onChange={(e) => setPistonDiameter(e.target.value)}
-            />
-            <TextField
-              label={t('mcsa.fieldStroke')}
-              type="number"
-              required
-              value={stroke}
-              onChange={(e) => setStroke(e.target.value)}
-            />
-            <TextField
               label={t('mcsa.fieldRPM')}
               type="number"
               required
-              value={rpm}
-              onChange={(e) => setRpm(e.target.value)}
+              value={rpmStr}
+              onChange={(e) =>
+                updateActiveEngine({
+                  toolParams: {
+                    ...activeEngine?.toolParams,
+                    mcsa: { rpm: e.target.value ? parseFloat(e.target.value) : undefined },
+                  },
+                })
+              }
             />
-            <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
-              {t('mcsa.calculate')}
-            </Button>
             {result !== null && (
               <Typography variant="body1">
                 {t('mcsa.resultLabel')}: {result} {t('mcsa.resultUnit')}
@@ -118,6 +154,13 @@ export default function Mcsa() {
           />
         </Paper>
       )}
+
+      <EngineWizardDialog
+        open={wizardOpen}
+        onClose={handleWizardClose}
+        requiredFields={REQUIRED_FIELDS}
+        editEngineId={activeEngine?.id}
+      />
     </>
   )
 }

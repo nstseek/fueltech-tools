@@ -11,6 +11,8 @@ import exhaustPipeLength from './exhaustPipeLength/pt-BR'
 import exhaustJoint from './exhaustJoint/pt-BR'
 import rlRatio from './rlRatio/pt-BR'
 import compressionRatio from './compressionRatio/pt-BR'
+import engineWizard from './engineWizard/pt-BR'
+import engineManager from './engineManager/pt-BR'
 
 const ptBR = {
   common: {
@@ -25,6 +27,9 @@ const ptBR = {
     reset: 'Redefinir',
     refresh: 'Atualizar',
     optional: 'Opcional',
+    calculate: 'Calcular',
+    setupEngine: 'Configurar Motor',
+    noEngineMessage: 'Configure um motor para usar esta ferramenta.',
   },
   nav: {
     home: 'Início',
@@ -58,6 +63,8 @@ const ptBR = {
   exhaustJoint,
   rlRatio,
   compressionRatio,
+  engineWizard,
+  engineManager,
 }
 
 export default ptBR

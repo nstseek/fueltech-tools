@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -17,7 +17,9 @@ import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturi
 import { useTranslation } from 'react-i18next'
 import * as d3 from 'd3'
 import type { EngineParams, ControllerValues } from './EngineVisualization/engineCalculations'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useEngineContext } from '../contexts/EngineContext'
+import EngineWizardDialog from '../components/EngineWizard'
+import type { EngineProfileField } from '../types/engineProfile'
 import {
   getPistonPosition,
   getPistonVelocity,
@@ -37,43 +39,32 @@ function parseCsv(text: string): number[][] {
     .map((row) => row.split(',').map(Number))
 }
 
-// ─── Step field interfaces ───────────────────────────────────────────────────
-
-interface Step1Fields {
-  numCylinders: string
-  intakeValveOpens: string
-  intakeValveCloses: string
-  exhaustValveOpens: string
-  exhaustValveCloses: string
-  injectionAngle: string
-  stroke: string
-  conrodLength: string
-}
-
-interface Step2Fields {
-  injectionMethod: 'sequential'
-  ignitionMethod: 'sequential'
-  maxRPM: string
-  maxMAP: string
-}
-
 // ─── Validation ──────────────────────────────────────────────────────────────
 
-function isStep1Valid(f: Step1Fields): boolean {
+function isStep1Valid(
+  numCylinders: string,
+  intakeValveOpens: string,
+  intakeValveCloses: string,
+  exhaustValveOpens: string,
+  exhaustValveCloses: string,
+  injectionAngle: string,
+  stroke: string,
+  conrodLength: string,
+): boolean {
   return (
-    f.numCylinders !== '' &&
-    f.intakeValveOpens !== '' &&
-    f.intakeValveCloses !== '' &&
-    f.exhaustValveOpens !== '' &&
-    f.exhaustValveCloses !== '' &&
-    f.injectionAngle !== '' &&
-    f.stroke !== '' &&
-    f.conrodLength !== ''
+    numCylinders !== '' &&
+    intakeValveOpens !== '' &&
+    intakeValveCloses !== '' &&
+    exhaustValveOpens !== '' &&
+    exhaustValveCloses !== '' &&
+    injectionAngle !== '' &&
+    stroke !== '' &&
+    conrodLength !== ''
   )
 }
 
-function isStep2Valid(f: Step2Fields): boolean {
-  return f.maxRPM !== '' && f.maxMAP !== ''
+function isStep2Valid(maxRPM: string, maxMAP: string): boolean {
+  return maxRPM !== '' && maxMAP !== ''
 }
 
 // ─── Graph constants ─────────────────────────────────────────────────────────
@@ -248,39 +239,36 @@ function drawGraph(
   })
 }
 
+const REQUIRED_FIELDS: EngineProfileField[] = [
+  'numCylinders', 'intakeValveOpens', 'intakeValveCloses', 'exhaustValveOpens',
+  'exhaustValveCloses', 'injectionAngle', 'stroke', 'conrodLength', 'maxRPM', 'maxMAP',
+]
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function EngineVisualization() {
   const { t } = useTranslation()
+  const { activeEngine, updateActiveEngine } = useEngineContext()
+  const [wizardOpen, setWizardOpen] = useState(false)
 
-  const [activeStep, setActiveStep] = useLocalStorage('fueltech:engineViz.activeStep', 0)
-  const [finished, setFinished] = useLocalStorage('fueltech:engineViz.finished', false)
+  // All tool state lives in the engine profile under toolParams.engineVisualization
+  const evParams = activeEngine?.toolParams?.engineVisualization
+  const activeStep = evParams?.activeStep ?? 0
+  const finished = evParams?.finished ?? false
+  const injectionData = evParams?.injectionData ?? null
+  const ignitionData = evParams?.ignitionData ?? null
+  const injectionFileName = evParams?.injectionFileName ?? null
+  const ignitionFileName = evParams?.ignitionFileName ?? null
+  const controller: ControllerValues = evParams?.controller ?? { rpm: 0, map: 0 }
 
-  const [step1, setStep1] = useLocalStorage<Step1Fields>('fueltech:engineViz.step1', {
-    numCylinders: '',
-    intakeValveOpens: '',
-    intakeValveCloses: '',
-    exhaustValveOpens: '',
-    exhaustValveCloses: '',
-    injectionAngle: '',
-    stroke: '',
-    conrodLength: '',
-  })
-
-  const [step2, setStep2] = useLocalStorage<Step2Fields>('fueltech:engineViz.step2', {
-    injectionMethod: 'sequential',
-    ignitionMethod: 'sequential',
-    maxRPM: '',
-    maxMAP: '',
-  })
-
-  const [injectionData, setInjectionData] = useLocalStorage<number[][] | null>('fueltech:engineViz.injectionData', null)
-  const [ignitionData, setIgnitionData] = useLocalStorage<number[][] | null>('fueltech:engineViz.ignitionData', null)
-  const [injectionFileName, setInjectionFileName] = useLocalStorage<string | null>('fueltech:engineViz.injectionFileName', null)
-  const [ignitionFileName, setIgnitionFileName] = useLocalStorage<string | null>('fueltech:engineViz.ignitionFileName', null)
-
-  const [engineParams, setEngineParams] = useLocalStorage<EngineParams | null>('fueltech:engineViz.engineParams', null)
-  const [controller, setController] = useLocalStorage<ControllerValues>('fueltech:engineViz.controller', { rpm: 0, map: 0 })
+  function setEvParam(updates: Partial<NonNullable<typeof evParams>>) {
+    updateActiveEngine({
+      toolParams: {
+        ...activeEngine?.toolParams,
+        engineVisualization: { ...evParams, ...updates },
+      },
+    })
+  }
 
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -289,6 +277,51 @@ export default function EngineVisualization() {
     t('engineVisualization.stepMethods'),
     t('engineVisualization.stepImportData'),
   ]
+
+  // Engine profile fields for steps 1 & 2
+  const injectionMethod = activeEngine?.injectionMethod ?? 'sequential'
+  const ignitionMethod = activeEngine?.ignitionMethod ?? 'sequential'
+  const numCylinders = activeEngine?.numCylinders?.toString() ?? ''
+  const intakeValveOpens = activeEngine?.intakeValveOpens?.toString() ?? ''
+  const intakeValveCloses = activeEngine?.intakeValveCloses?.toString() ?? ''
+  const exhaustValveOpens = activeEngine?.exhaustValveOpens?.toString() ?? ''
+  const exhaustValveCloses = activeEngine?.exhaustValveCloses?.toString() ?? ''
+  const injectionAngle = activeEngine?.injectionAngle?.toString() ?? ''
+  const stroke = activeEngine?.stroke?.toString() ?? ''
+  const conrodLength = activeEngine?.conrodLength?.toString() ?? ''
+  const maxRPM = activeEngine?.maxRPM?.toString() ?? ''
+  const maxMAP = activeEngine?.maxMAP?.toString() ?? ''
+
+  // Derive engineParams from the engine profile (rebuilt whenever engine changes)
+  const engineParams: EngineParams | null =
+    finished &&
+    numCylinders && intakeValveOpens && intakeValveCloses &&
+    exhaustValveOpens && exhaustValveCloses && injectionAngle &&
+    stroke && conrodLength && maxRPM && maxMAP
+      ? {
+          numCylinders: Number(numCylinders),
+          intakeValveOpens: Number(intakeValveOpens),
+          intakeValveCloses: Number(intakeValveCloses),
+          exhaustValveOpens: Number(exhaustValveOpens),
+          exhaustValveCloses: Number(exhaustValveCloses),
+          injectionAngle: Number(injectionAngle),
+          injectionMethod,
+          ignitionMethod,
+          maxRPM: Number(maxRPM),
+          maxMAP: Number(maxMAP),
+          stroke: Number(stroke),
+          conrodLength: Number(conrodLength),
+        }
+      : null
+
+  useEffect(() => {
+    if (!activeEngine) {
+      setWizardOpen(true)
+      return
+    }
+    const missing = REQUIRED_FIELDS.some((f) => activeEngine[f] === undefined || activeEngine[f] === null)
+    if (missing) setWizardOpen(true)
+  }, [activeEngine?.id])
 
   // Redraw D3 graph when relevant state changes
   useEffect(() => {
@@ -301,87 +334,84 @@ export default function EngineVisualization() {
     if (!finished || !engineParams || !svgRef.current) return
     const el = svgRef.current
     const observer = new ResizeObserver(() => {
-      if (engineParams) {
-        drawGraph(el, engineParams, controller, injectionData, ignitionData, t)
-      }
+      drawGraph(el, engineParams, controller, injectionData, ignitionData, t)
     })
     observer.observe(el.parentElement ?? el)
     return () => observer.disconnect()
   }, [finished, engineParams, controller, injectionData, ignitionData, t])
 
   function handleNext() {
-    if (activeStep === 0 && !isStep1Valid(step1)) return
-    if (activeStep === 1 && !isStep2Valid(step2)) return
-    setActiveStep((prev) => prev + 1)
+    if (activeStep === 0 && !isStep1Valid(numCylinders, intakeValveOpens, intakeValveCloses, exhaustValveOpens, exhaustValveCloses, injectionAngle, stroke, conrodLength)) return
+    if (activeStep === 1 && !isStep2Valid(maxRPM, maxMAP)) return
+    setEvParam({ activeStep: activeStep + 1 })
   }
 
   function handleBack() {
-    setActiveStep((prev) => prev - 1)
+    setEvParam({ activeStep: activeStep - 1 })
   }
 
   function handleFinish() {
-    const params: EngineParams = {
-      numCylinders: Number(step1.numCylinders),
-      intakeValveOpens: Number(step1.intakeValveOpens),
-      intakeValveCloses: Number(step1.intakeValveCloses),
-      exhaustValveOpens: Number(step1.exhaustValveOpens),
-      exhaustValveCloses: Number(step1.exhaustValveCloses),
-      injectionAngle: Number(step1.injectionAngle),
-      injectionMethod: step2.injectionMethod,
-      ignitionMethod: step2.ignitionMethod,
-      maxRPM: Number(step2.maxRPM),
-      maxMAP: Number(step2.maxMAP),
-      stroke: Number(step1.stroke),
-      conrodLength: Number(step1.conrodLength),
-    }
-    const initRPM = Math.round((params.maxRPM / 2) / 200) * 200
-    const initMAP = params.maxMAP / 2
-    setEngineParams(params)
-    setController({ rpm: initRPM, map: initMAP })
-    setFinished(true)
+    if (!activeEngine) return
+    const initRPM = Math.round((Number(maxRPM) / 2) / 200) * 200
+    const initMAP = Number(maxMAP) / 2
+    setEvParam({
+      finished: true,
+      controller: { rpm: initRPM, map: initMAP },
+    })
   }
 
   function handleReset() {
-    setActiveStep(0)
-    setFinished(false)
-    setEngineParams(null)
-    setInjectionData(null)
-    setIgnitionData(null)
-    setInjectionFileName(null)
-    setIgnitionFileName(null)
-    setStep1({
-      numCylinders: '',
-      intakeValveOpens: '',
-      intakeValveCloses: '',
-      exhaustValveOpens: '',
-      exhaustValveCloses: '',
-      injectionAngle: '',
-      stroke: '',
-      conrodLength: '',
+    updateActiveEngine({
+      toolParams: {
+        ...activeEngine?.toolParams,
+        engineVisualization: {
+          activeStep: 0,
+          finished: false,
+          injectionData: null,
+          ignitionData: null,
+          injectionFileName: null,
+          ignitionFileName: null,
+          controller: { rpm: 0, map: 0 },
+        },
+      },
     })
-    setStep2({
-      injectionMethod: 'sequential',
-      ignitionMethod: 'sequential',
-      maxRPM: '',
-      maxMAP: '',
-    })
-    setController({ rpm: 0, map: 0 })
   }
 
   function handleFileImport(
     file: File,
-    setter: (data: number[][] | null) => void,
-    nameSetter: (name: string | null) => void,
+    field: 'injectionData' | 'ignitionData',
+    nameField: 'injectionFileName' | 'ignitionFileName',
   ) {
-    nameSetter(file.name)
     const reader = new FileReader()
     reader.onload = (e) => {
       const text = e.target?.result
       if (typeof text === 'string') {
-        setter(parseCsv(text))
+        setEvParam({ [field]: parseCsv(text), [nameField]: file.name })
       }
     }
     reader.readAsText(file)
+  }
+
+  if (!activeEngine) {
+    return (
+      <>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <PrecisionManufacturingIcon color="primary" />
+          <Typography variant="h4">{t('engineVisualization.title')}</Typography>
+        </Box>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          {t('common.noEngineMessage')}
+        </Typography>
+        <Button variant="contained" onClick={() => setWizardOpen(true)}>
+          {t('common.setupEngine')}
+        </Button>
+        <EngineWizardDialog
+          open={wizardOpen}
+          onClose={() => setWizardOpen(false)}
+          requiredFields={REQUIRED_FIELDS}
+        />
+      </>
+    )
   }
 
   return (
@@ -411,16 +441,16 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldNumCylinders')}
                 type="number"
                 required
-                value={step1.numCylinders}
-                onChange={(e) => setStep1({ ...step1, numCylinders: e.target.value })}
+                value={numCylinders}
+                onChange={(e) => updateActiveEngine({ numCylinders: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
               <TextField
                 label={t('engineVisualization.fieldIntakeValveOpens')}
                 type="number"
                 required
-                value={step1.intakeValveOpens}
-                onChange={(e) => setStep1({ ...step1, intakeValveOpens: e.target.value })}
+                value={intakeValveOpens}
+                onChange={(e) => updateActiveEngine({ intakeValveOpens: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0, max: 720 } }}
                 helperText={t('engineVisualization.fieldIntakeValveOpensHelper')}
               />
@@ -428,8 +458,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldIntakeValveCloses')}
                 type="number"
                 required
-                value={step1.intakeValveCloses}
-                onChange={(e) => setStep1({ ...step1, intakeValveCloses: e.target.value })}
+                value={intakeValveCloses}
+                onChange={(e) => updateActiveEngine({ intakeValveCloses: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0, max: 720 } }}
                 helperText={t('engineVisualization.fieldIntakeValveClosesHelper')}
               />
@@ -437,8 +467,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldExhaustValveOpens')}
                 type="number"
                 required
-                value={step1.exhaustValveOpens}
-                onChange={(e) => setStep1({ ...step1, exhaustValveOpens: e.target.value })}
+                value={exhaustValveOpens}
+                onChange={(e) => updateActiveEngine({ exhaustValveOpens: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0, max: 720 } }}
                 helperText={t('engineVisualization.fieldExhaustValveOpensHelper')}
               />
@@ -446,8 +476,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldExhaustValveCloses')}
                 type="number"
                 required
-                value={step1.exhaustValveCloses}
-                onChange={(e) => setStep1({ ...step1, exhaustValveCloses: e.target.value })}
+                value={exhaustValveCloses}
+                onChange={(e) => updateActiveEngine({ exhaustValveCloses: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0, max: 720 } }}
                 helperText={t('engineVisualization.fieldExhaustValveClosesHelper')}
               />
@@ -455,8 +485,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldInjectionAngle')}
                 type="number"
                 required
-                value={step1.injectionAngle}
-                onChange={(e) => setStep1({ ...step1, injectionAngle: e.target.value })}
+                value={injectionAngle}
+                onChange={(e) => updateActiveEngine({ injectionAngle: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0, max: 720 } }}
                 helperText={t('engineVisualization.fieldInjectionAngleHelper')}
               />
@@ -464,8 +494,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldStroke')}
                 type="number"
                 required
-                value={step1.stroke}
-                onChange={(e) => setStep1({ ...step1, stroke: e.target.value })}
+                value={stroke}
+                onChange={(e) => updateActiveEngine({ stroke: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0 } }}
                 helperText={t('engineVisualization.fieldStrokeHelper')}
               />
@@ -473,8 +503,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldConrodLength')}
                 type="number"
                 required
-                value={step1.conrodLength}
-                onChange={(e) => setStep1({ ...step1, conrodLength: e.target.value })}
+                value={conrodLength}
+                onChange={(e) => updateActiveEngine({ conrodLength: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0 } }}
                 helperText={t('engineVisualization.fieldConrodLengthHelper')}
               />
@@ -482,7 +512,7 @@ export default function EngineVisualization() {
                 <Button
                   variant="contained"
                   onClick={handleNext}
-                  disabled={!isStep1Valid(step1)}
+                  disabled={!isStep1Valid(numCylinders, intakeValveOpens, intakeValveCloses, exhaustValveOpens, exhaustValveCloses, injectionAngle, stroke, conrodLength)}
                 >
                   {t('common.next')}
                 </Button>
@@ -495,7 +525,7 @@ export default function EngineVisualization() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 480 }}>
               <FormControl required>
                 <FormLabel>{t('engineVisualization.fieldInjectionMethod')}</FormLabel>
-                <RadioGroup value={step2.injectionMethod}>
+                <RadioGroup value={injectionMethod}>
                   <FormControlLabel
                     value="sequential"
                     control={<Radio />}
@@ -530,7 +560,7 @@ export default function EngineVisualization() {
 
               <FormControl required>
                 <FormLabel>{t('engineVisualization.fieldIgnitionMethod')}</FormLabel>
-                <RadioGroup value={step2.ignitionMethod}>
+                <RadioGroup value={ignitionMethod}>
                   <FormControlLabel
                     value="sequential"
                     control={<Radio />}
@@ -555,8 +585,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldMaxRPM')}
                 type="number"
                 required
-                value={step2.maxRPM}
-                onChange={(e) => setStep2({ ...step2, maxRPM: e.target.value })}
+                value={maxRPM}
+                onChange={(e) => updateActiveEngine({ maxRPM: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0 } }}
               />
 
@@ -564,8 +594,8 @@ export default function EngineVisualization() {
                 label={t('engineVisualization.fieldMaxMAP')}
                 type="number"
                 required
-                value={step2.maxMAP}
-                onChange={(e) => setStep2({ ...step2, maxMAP: e.target.value })}
+                value={maxMAP}
+                onChange={(e) => updateActiveEngine({ maxMAP: e.target.value ? parseFloat(e.target.value) : undefined })}
                 slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
               />
 
@@ -576,7 +606,7 @@ export default function EngineVisualization() {
                 <Button
                   variant="contained"
                   onClick={handleNext}
-                  disabled={!isStep2Valid(step2)}
+                  disabled={!isStep2Valid(maxRPM, maxMAP)}
                 >
                   {t('common.next')}
                 </Button>
@@ -597,7 +627,7 @@ export default function EngineVisualization() {
                     hidden
                     onChange={(e) => {
                       const file = e.target.files?.[0]
-                      if (file) handleFileImport(file, setInjectionData, setInjectionFileName)
+                      if (file) handleFileImport(file, 'injectionData', 'injectionFileName')
                     }}
                   />
                 </Button>
@@ -621,7 +651,7 @@ export default function EngineVisualization() {
                     hidden
                     onChange={(e) => {
                       const file = e.target.files?.[0]
-                      if (file) handleFileImport(file, setIgnitionData, setIgnitionFileName)
+                      if (file) handleFileImport(file, 'ignitionData', 'ignitionFileName')
                     }}
                   />
                 </Button>
@@ -661,14 +691,14 @@ export default function EngineVisualization() {
                   label={t('engineVisualization.controllerRPM')}
                   type="number"
                   value={controller.rpm}
-                  onChange={(e) => setController({ ...controller, rpm: Number(e.target.value) })}
+                  onChange={(e) => setEvParam({ controller: { ...controller, rpm: Number(e.target.value) } })}
                   slotProps={{ htmlInput: { min: 0, max: engineParams.maxRPM } }}
                 />
                 <TextField
                   label={t('engineVisualization.controllerMAP')}
                   type="number"
                   value={controller.map}
-                  onChange={(e) => setController({ ...controller, map: Number(e.target.value) })}
+                  onChange={(e) => setEvParam({ controller: { ...controller, map: Number(e.target.value) } })}
                   slotProps={{ htmlInput: { min: -1, max: engineParams.maxMAP, step: 0.1 } }}
                 />
               </Box>
@@ -682,6 +712,12 @@ export default function EngineVisualization() {
           </Box>
         </>
       )}
+
+      <EngineWizardDialog
+        open={wizardOpen}
+        onClose={() => setWizardOpen(false)}
+        requiredFields={REQUIRED_FIELDS}
+      />
     </>
   )
 }

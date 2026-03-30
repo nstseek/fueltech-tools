@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Box from '@mui/material/Box'
@@ -10,29 +10,53 @@ import AirIcon from '@mui/icons-material/Air'
 import { useTranslation } from 'react-i18next'
 import { calculateExhaustPipeLength } from './ExhaustPipeLength/calculateExhaustPipeLength'
 import LineChart from '../components/ui/LineChart'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useEngineContext } from '../contexts/EngineContext'
+import EngineWizardDialog from '../components/EngineWizard'
+import { useWizardGuard } from '../hooks/useWizardGuard'
+import { hasRequiredFields } from '../schemas/engineProfile'
+import type { EngineProfileField } from '../types/engineProfile'
 
 const RPM_STEP = 100
 
+const REQUIRED_FIELDS: EngineProfileField[] = ['exhaustValveOpens']
+
 export default function ExhaustPipeLength() {
   const { t } = useTranslation()
-
-  const [rpm, setRpm] = useLocalStorage('fueltech:exhaustPipeLength.rpm', '')
-  const [evo, setEvo] = useLocalStorage('fueltech:exhaustPipeLength.evo', '')
-  const [result, setResult] = useLocalStorage<number | null>('fueltech:exhaustPipeLength.result', null)
+  const { activeEngine, updateActiveEngine } = useEngineContext()
+  const [wizardOpen, setWizardOpen] = useState(false)
+  const handleWizardClose = useWizardGuard(setWizardOpen, activeEngine, REQUIRED_FIELDS)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const isDisabled = !rpm || !evo
 
-  function handleCalculate() {
+  useEffect(() => {
+    if (!activeEngine) {
+      setWizardOpen(true)
+      return
+    }
+    if (!hasRequiredFields(activeEngine, REQUIRED_FIELDS)) setWizardOpen(true)
+    // Default rpm to maxRPM when engine loads and no rpm stored yet
+    if (activeEngine.maxRPM && activeEngine.toolParams?.exhaustPipeLength?.rpm === undefined) {
+      updateActiveEngine({ toolParams: { ...activeEngine.toolParams, exhaustPipeLength: { rpm: activeEngine.maxRPM } } })
+    }
+  }, [activeEngine?.id])
+
+  const rpm = activeEngine?.toolParams?.exhaustPipeLength?.rpm
+  const rpmStr = rpm?.toString() ?? ''
+  const evo = activeEngine?.exhaustValveOpens?.toString() ?? ''
+  const result = activeEngine?.results?.exhaustPipeLength?.result ?? null
+
+  useEffect(() => {
+    if (rpm === undefined || !evo) return
     const length = calculateExhaustPipeLength(Number(rpm), Number(evo))
-    setResult(length)
-  }
+    updateActiveEngine({
+      results: { ...activeEngine?.results, exhaustPipeLength: { result: length } },
+    })
+  }, [rpm, evo, activeEngine?.id])
 
   const chartData = useMemo(() => {
     if (result === null) return []
-    const rpmVal = Number(rpm)
+    const rpmVal = Number(rpmStr)
     const range = isMobile ? 1000 : 3000
     const step = isMobile ? 500 : RPM_STEP
     const minRPM = Math.max(0, rpmVal - range)
@@ -42,7 +66,29 @@ export default function ExhaustPipeLength() {
       points.push({ x: r, y: calculateExhaustPipeLength(r, Number(evo)) })
     }
     return points
-  }, [result, evo, rpm, isMobile])
+  }, [result, evo, rpmStr, isMobile])
+
+  if (!activeEngine) {
+    return (
+      <>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <AirIcon color="primary" />
+          <Typography variant="h4">{t('exhaustPipeLength.title')}</Typography>
+        </Box>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          {t('common.noEngineMessage')}
+        </Typography>
+        <Button variant="contained" onClick={() => setWizardOpen(true)}>
+          {t('common.setupEngine')}
+        </Button>
+        <EngineWizardDialog
+          open={wizardOpen}
+          onClose={handleWizardClose}
+          requiredFields={REQUIRED_FIELDS}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -61,19 +107,16 @@ export default function ExhaustPipeLength() {
               label={t('exhaustPipeLength.fieldRPM')}
               type="number"
               required
-              value={rpm}
-              onChange={(e) => setRpm(e.target.value)}
+              value={rpmStr}
+              onChange={(e) =>
+                updateActiveEngine({
+                  toolParams: {
+                    ...activeEngine?.toolParams,
+                    exhaustPipeLength: { rpm: e.target.value ? parseFloat(e.target.value) : undefined },
+                  },
+                })
+              }
             />
-            <TextField
-              label={t('exhaustPipeLength.fieldEVO')}
-              type="number"
-              required
-              value={evo}
-              onChange={(e) => setEvo(e.target.value)}
-            />
-            <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
-              {t('exhaustPipeLength.calculate')}
-            </Button>
             {result !== null && (
               <Typography variant="body1">
                 {t('exhaustPipeLength.resultLabel')}: {result} {t('exhaustPipeLength.resultUnit')}
@@ -109,6 +152,13 @@ export default function ExhaustPipeLength() {
           />
         </Paper>
       )}
+
+      <EngineWizardDialog
+        open={wizardOpen}
+        onClose={handleWizardClose}
+        requiredFields={REQUIRED_FIELDS}
+        editEngineId={activeEngine?.id}
+      />
     </>
   )
 }

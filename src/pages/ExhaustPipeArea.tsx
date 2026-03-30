@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Box from '@mui/material/Box'
@@ -10,42 +10,91 @@ import AirIcon from '@mui/icons-material/Air'
 import { useTranslation } from 'react-i18next'
 import { calculateExhaustPipeArea } from './ExhaustPipeArea/calculateExhaustPipeArea'
 import LineChart from '../components/ui/LineChart'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useEngineContext } from '../contexts/EngineContext'
+import EngineWizardDialog from '../components/EngineWizard'
+import { useWizardGuard } from '../hooks/useWizardGuard'
+import { hasRequiredFields } from '../schemas/engineProfile'
+import type { EngineProfileField } from '../types/engineProfile'
 
 const RPM_STEP = 100
 
+const REQUIRED_FIELDS: EngineProfileField[] = ['bore', 'stroke']
+
 export default function ExhaustPipeArea() {
   const { t } = useTranslation()
-
-  const [rpm, setRpm] = useLocalStorage('fueltech:exhaustPipeArea.rpm', '')
-  const [cylinderVolume, setCylinderVolume] = useLocalStorage('fueltech:exhaustPipeArea.cylinderVolume', '')
-  const [result, setResult] = useLocalStorage<{ area: number; diameter: number } | null>(
-    'fueltech:exhaustPipeArea.result',
-    null,
-  )
+  const { activeEngine, updateActiveEngine } = useEngineContext()
+  const [wizardOpen, setWizardOpen] = useState(false)
+  const handleWizardClose = useWizardGuard(setWizardOpen, activeEngine, REQUIRED_FIELDS)
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const isDisabled = !rpm || !cylinderVolume
 
-  function handleCalculate() {
-    const res = calculateExhaustPipeArea(Number(rpm), Number(cylinderVolume))
-    setResult(res)
-  }
+  useEffect(() => {
+    if (!activeEngine) {
+      setWizardOpen(true)
+      return
+    }
+    if (!hasRequiredFields(activeEngine, REQUIRED_FIELDS)) setWizardOpen(true)
+    // Default rpm to maxRPM when engine loads and no rpm stored yet
+    if (activeEngine.maxRPM && activeEngine.toolParams?.exhaustPipeArea?.rpm === undefined) {
+      updateActiveEngine({ toolParams: { ...activeEngine.toolParams, exhaustPipeArea: { rpm: activeEngine.maxRPM } } })
+    }
+  }, [activeEngine?.id])
+
+  // cylinderVolume is computed from bore and stroke
+  const bore = activeEngine?.bore
+  const stroke = activeEngine?.stroke
+  const cylinderVolume = bore !== undefined && stroke !== undefined
+    ? Math.PI * Math.pow(bore / 2, 2) * stroke / 1000
+    : undefined
+
+  const rpm = activeEngine?.toolParams?.exhaustPipeArea?.rpm
+  const rpmStr = rpm?.toString() ?? ''
+  const result = activeEngine?.results?.exhaustPipeArea?.result ?? null
+
+  useEffect(() => {
+    if (rpm === undefined || cylinderVolume === undefined) return
+    const res = calculateExhaustPipeArea(Number(rpm), cylinderVolume)
+    updateActiveEngine({
+      results: { ...activeEngine?.results, exhaustPipeArea: { result: res } },
+    })
+  }, [rpm, cylinderVolume, activeEngine?.id])
 
   const chartData = useMemo(() => {
-    if (result === null) return []
-    const rpmVal = Number(rpm)
+    if (result === null || cylinderVolume === undefined) return []
+    const rpmVal = Number(rpmStr)
     const range = isMobile ? 1000 : 3000
     const step = isMobile ? 500 : RPM_STEP
     const minRPM = Math.max(0, rpmVal - range)
     const maxRPM = rpmVal + range
     const points = []
     for (let r = minRPM; r <= maxRPM; r += step) {
-      points.push({ x: r, y: calculateExhaustPipeArea(r, Number(cylinderVolume)).diameter })
+      points.push({ x: r, y: calculateExhaustPipeArea(r, cylinderVolume).diameter })
     }
     return points
-  }, [result, cylinderVolume, rpm, isMobile])
+  }, [result, cylinderVolume, rpmStr, isMobile])
+
+  if (!activeEngine) {
+    return (
+      <>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <AirIcon color="primary" />
+          <Typography variant="h4">{t('exhaustPipeArea.title')}</Typography>
+        </Box>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          {t('common.noEngineMessage')}
+        </Typography>
+        <Button variant="contained" onClick={() => setWizardOpen(true)}>
+          {t('common.setupEngine')}
+        </Button>
+        <EngineWizardDialog
+          open={wizardOpen}
+          onClose={handleWizardClose}
+          requiredFields={REQUIRED_FIELDS}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -64,19 +113,24 @@ export default function ExhaustPipeArea() {
               label={t('exhaustPipeArea.fieldRPM')}
               type="number"
               required
-              value={rpm}
-              onChange={(e) => setRpm(e.target.value)}
+              value={rpmStr}
+              onChange={(e) =>
+                updateActiveEngine({
+                  toolParams: {
+                    ...activeEngine?.toolParams,
+                    exhaustPipeArea: { rpm: e.target.value ? parseFloat(e.target.value) : undefined },
+                  },
+                })
+              }
             />
             <TextField
               label={t('exhaustPipeArea.fieldCylinderVolume')}
               type="number"
               required
-              value={cylinderVolume}
-              onChange={(e) => setCylinderVolume(e.target.value)}
+              value={cylinderVolume !== undefined ? cylinderVolume.toFixed(4) : ''}
+              slotProps={{ input: { readOnly: true } }}
+              helperText={`${t('engineWizard.fieldBore')}: ${bore ?? '-'} mm, ${t('engineWizard.fieldStroke')}: ${stroke ?? '-'} mm`}
             />
-            <Button variant="contained" onClick={handleCalculate} disabled={isDisabled}>
-              {t('exhaustPipeArea.calculate')}
-            </Button>
             {result !== null && (
               <>
                 <Typography variant="body1">
@@ -121,6 +175,13 @@ export default function ExhaustPipeArea() {
           />
         </Paper>
       )}
+
+      <EngineWizardDialog
+        open={wizardOpen}
+        onClose={handleWizardClose}
+        requiredFields={REQUIRED_FIELDS}
+        editEngineId={activeEngine?.id}
+      />
     </>
   )
 }
